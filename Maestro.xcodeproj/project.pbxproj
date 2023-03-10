@@ -7,13 +7,66 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2728CB2D298BBE42002BCF1B /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2728CB2C298BBE42002BCF1B /* TasksView.swift */; };
+		2728CB2F298BCA33002BCF1B /* TasksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2728CB2E298BCA33002BCF1B /* TasksViewModel.swift */; };
+		2728CB33298BF311002BCF1B /* UserTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2728CB32298BF311002BCF1B /* UserTasksView.swift */; };
+		2728CB35298BF321002BCF1B /* GeneralTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2728CB34298BF321002BCF1B /* GeneralTasksView.swift */; };
+		2762D73B299D1803006BC645 /* PageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2762D73A299D1803006BC645 /* PageView.swift */; };
+		27EDE72329A4FC6900F3C22D /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDE71C29A4FC6900F3C22D /* Report.swift */; };
+		27EDE72429A4FC6900F3C22D /* IDApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDE71D29A4FC6900F3C22D /* IDApplication.swift */; };
+		27EDE72529A4FC6900F3C22D /* IDDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDE71E29A4FC6900F3C22D /* IDDocument.swift */; };
+		27EDE72629A4FC6900F3C22D /* InDesignBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDE72029A4FC6900F3C22D /* InDesignBridge.swift */; };
+		27EDE72729A4FC6900F3C22D /* MaestroPreflightOptions.idpp in Resources */ = {isa = PBXBuildFile; fileRef = 27EDE72229A4FC6900F3C22D /* MaestroPreflightOptions.idpp */; };
+		430C9A5E2961B19C00F22FEB /* PublicationListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 430C9A5D2961B19C00F22FEB /* PublicationListItemView.swift */; };
+		430C9A622962232F00F22FEB /* PublicationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 430C9A612962232F00F22FEB /* PublicationDetailsView.swift */; };
+		430C9A9A2966125300F22FEB /* PublicationListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 430C9A992966125200F22FEB /* PublicationListViewModel.swift */; };
+		430DB681299D1FBC00D324AA /* RowActionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 430DB680299D1FBC00D324AA /* RowActionsViewModel.swift */; };
+		4310ECC029A95C3D0024E414 /* rgbColor.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4310ECBF29A9592C0024E414 /* rgbColor.indd */; };
+		4313415329808EDC00740921 /* StringFormatStyle+StringParseStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4313415229808EDC00740921 /* StringFormatStyle+StringParseStrategy.swift */; };
+		4313415529808F9F00740921 /* UnderlinedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4313415429808F9F00740921 /* UnderlinedControl.swift */; };
+		431341572981E2EA00740921 /* SectionDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431341562981E2EA00740921 /* SectionDisclosureGroupStyle.swift */; };
+		431341592983295800740921 /* DeadlineListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431341582983295700740921 /* DeadlineListRowView.swift */; };
+		4313415B2983312600740921 /* DeadlineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4313415A2983312600740921 /* DeadlineListView.swift */; };
+		4313415D298337C400740921 /* PublicationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4313415C298337C400740921 /* PublicationSettingsView.swift */; };
+		4315B7B629887748002308AE /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4315B7B529887748002308AE /* ArticleListView.swift */; };
+		4315F4A529A577E100D83332 /* empty.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4315F4A429A573FE00D83332 /* empty.indd */; };
+		43399718294BDD9700A87853 /* AnimatableBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43399717294BDD9700A87853 /* AnimatableBackground.swift */; };
+		4339971D294C7E4800A87853 /* LoginBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4339971C294C7E4800A87853 /* LoginBackground.swift */; };
+		4339971F294CB3A000A87853 /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4339971E294CB3A000A87853 /* View.swift */; };
+		43399721294CBC9900A87853 /* LoginErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43399720294CBC9900A87853 /* LoginErrorView.swift */; };
+		43399724294D225B00A87853 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43399723294D225B00A87853 /* MainView.swift */; };
+		43399726294DB0DD00A87853 /* LoginPasswordField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43399725294DB0DD00A87853 /* LoginPasswordField.swift */; };
+		433E257A29A54CB0002673A9 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 433E257929A54CAF002673A9 /* ScriptingBridge.framework */; platformFilters = (macos, ); };
+		4358568429AFB9BC00FC3A59 /* textOverflow.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4358568329AFB95200FC3A59 /* textOverflow.indd */; };
+		4358568629AFBA6C00FC3A59 /* imageLink.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4358568529AFBA6C00FC3A59 /* imageLink.indd */; };
+		4358568829AFBBC400FC3A59 /* imageResolution.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4358568729AFBBC400FC3A59 /* imageResolution.indd */; };
+		435D880B295B1EEC00EC9E8C /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D880A295B1EEC00EC9E8C /* Environment.swift */; };
+		435D880D295B84F900EC9E8C /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D880C295B84F800EC9E8C /* RealmManager.swift */; };
+		435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8B29B93BE5006F8677 /* RealmAppID.swift */; };
+		435D9F8E29B93C75006F8677 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8D29B93C75006F8677 /* ProcessInfo.swift */; };
+		43608E30296A405100813ADA /* ArticleListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E2F296A405100813ADA /* ArticleListItemView.swift */; };
+		43608E32296AC42E00813ADA /* LayoutEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E31296AC42E00813ADA /* LayoutEditor.swift */; };
+		4368E226298B1C0A0024B80F /* ArticleListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */; };
 		436B5679294919F70004A0F7 /* MaestroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B5678294919F70004A0F7 /* MaestroApp.swift */; };
-		436B567B294919F70004A0F7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B567A294919F70004A0F7 /* ContentView.swift */; };
 		436B567D294919FE0004A0F7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 436B567C294919FE0004A0F7 /* Assets.xcassets */; };
 		436B5681294919FE0004A0F7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 436B5680294919FE0004A0F7 /* Preview Assets.xcassets */; };
-		436B568B294919FF0004A0F7 /* MaestroTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B568A294919FF0004A0F7 /* MaestroTests.swift */; };
+		436B568B294919FF0004A0F7 /* InDesignScriptingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B568A294919FF0004A0F7 /* InDesignScriptingTests.swift */; };
 		436B5695294919FF0004A0F7 /* MaestroUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B5694294919FF0004A0F7 /* MaestroUITests.swift */; };
 		436B5697294919FF0004A0F7 /* MaestroUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B5696294919FF0004A0F7 /* MaestroUITestsLaunchTests.swift */; };
+		436B56A529491AE40004A0F7 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 436B56A429491AE40004A0F7 /* Realm */; };
+		436B56A729491AE40004A0F7 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 436B56A629491AE40004A0F7 /* RealmSwift */; };
+		436B56A929491EA70004A0F7 /* RealmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B56A829491EA70004A0F7 /* RealmView.swift */; };
+		436B56AD2949203B0004A0F7 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B56AC2949203A0004A0F7 /* LoginView.swift */; };
+		4378450A296B64BB006B161C /* GridStack in Frameworks */ = {isa = PBXBuildFile; productRef = 43784509296B64BB006B161C /* GridStack */; };
+		439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */; };
+		43BAC872296B1B7F0044BF0C /* ArticleDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */; };
+		43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7B294A7E0F000C2389 /* Publication.swift */; };
+		43C9AC7E294BACD7000C2389 /* RealmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7D294BACD7000C2389 /* RealmViewModel.swift */; };
+		43D8D3CB29865CFA00877A11 /* DeadlineListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8D3CA29865CFA00877A11 /* DeadlineListViewModel.swift */; };
+		43DC4EDB29588F81009D6170 /* PublicationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DC4EDA29588F81009D6170 /* PublicationListView.swift */; };
+		43E476AE29B15DA400BF9265 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E476AD29B15DA400BF9265 /* Array.swift */; };
+		43FEB4152989C091003B43CF /* ChildSizeViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FEB4142989C091003B43CF /* ChildSizeViewModifier.swift */; };
+		43FEB4162989C254003B43CF /* RowActionsViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8D3C82984895300877A11 /* RowActionsViewModifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,17 +87,68 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2728CB2C298BBE42002BCF1B /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
+		2728CB2E298BCA33002BCF1B /* TasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
+		2728CB32298BF311002BCF1B /* UserTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTasksView.swift; sourceTree = "<group>"; };
+		2728CB34298BF321002BCF1B /* GeneralTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralTasksView.swift; sourceTree = "<group>"; };
+		2762D73A299D1803006BC645 /* PageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageView.swift; sourceTree = "<group>"; };
+		27EDE71C29A4FC6900F3C22D /* Report.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
+		27EDE71D29A4FC6900F3C22D /* IDApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IDApplication.swift; sourceTree = "<group>"; };
+		27EDE71E29A4FC6900F3C22D /* IDDocument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IDDocument.swift; sourceTree = "<group>"; };
+		27EDE72029A4FC6900F3C22D /* InDesignBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InDesignBridge.swift; sourceTree = "<group>"; };
+		27EDE72229A4FC6900F3C22D /* MaestroPreflightOptions.idpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MaestroPreflightOptions.idpp; sourceTree = "<group>"; };
+		430C9A5D2961B19C00F22FEB /* PublicationListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationListItemView.swift; sourceTree = "<group>"; };
+		430C9A612962232F00F22FEB /* PublicationDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationDetailsView.swift; sourceTree = "<group>"; };
+		430C9A992966125200F22FEB /* PublicationListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationListViewModel.swift; sourceTree = "<group>"; };
+		430DB680299D1FBC00D324AA /* RowActionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowActionsViewModel.swift; sourceTree = "<group>"; };
+		4310ECBF29A9592C0024E414 /* rgbColor.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = rgbColor.indd; sourceTree = "<group>"; };
+		4313415229808EDC00740921 /* StringFormatStyle+StringParseStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StringFormatStyle+StringParseStrategy.swift"; sourceTree = "<group>"; };
+		4313415429808F9F00740921 /* UnderlinedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlinedControl.swift; sourceTree = "<group>"; };
+		431341562981E2EA00740921 /* SectionDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionDisclosureGroupStyle.swift; sourceTree = "<group>"; };
+		431341582983295700740921 /* DeadlineListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineListRowView.swift; sourceTree = "<group>"; };
+		4313415A2983312600740921 /* DeadlineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineListView.swift; sourceTree = "<group>"; };
+		4313415C298337C400740921 /* PublicationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationSettingsView.swift; sourceTree = "<group>"; };
+		4315B7B529887748002308AE /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
+		4315F4A429A573FE00D83332 /* empty.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = empty.indd; sourceTree = "<group>"; };
+		43399717294BDD9700A87853 /* AnimatableBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableBackground.swift; sourceTree = "<group>"; };
+		4339971C294C7E4800A87853 /* LoginBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginBackground.swift; sourceTree = "<group>"; };
+		4339971E294CB3A000A87853 /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		43399720294CBC9900A87853 /* LoginErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginErrorView.swift; sourceTree = "<group>"; };
+		43399723294D225B00A87853 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		43399725294DB0DD00A87853 /* LoginPasswordField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPasswordField.swift; sourceTree = "<group>"; };
+		433E257929A54CAF002673A9 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = System/Library/Frameworks/ScriptingBridge.framework; sourceTree = SDKROOT; };
+		4358568329AFB95200FC3A59 /* textOverflow.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = textOverflow.indd; sourceTree = "<group>"; };
+		4358568529AFBA6C00FC3A59 /* imageLink.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = imageLink.indd; sourceTree = "<group>"; };
+		4358568729AFBBC400FC3A59 /* imageResolution.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = imageResolution.indd; sourceTree = "<group>"; };
+		435D880A295B1EEC00EC9E8C /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		435D880C295B84F800EC9E8C /* RealmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
+		435D9F8B29B93BE5006F8677 /* RealmAppID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmAppID.swift; sourceTree = "<group>"; };
+		435D9F8D29B93C75006F8677 /* ProcessInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
+		43608E2F296A405100813ADA /* ArticleListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListItemView.swift; sourceTree = "<group>"; };
+		43608E31296AC42E00813ADA /* LayoutEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutEditor.swift; sourceTree = "<group>"; };
+		4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListViewModel.swift; sourceTree = "<group>"; };
 		436B5675294919F70004A0F7 /* Maestro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maestro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		436B5678294919F70004A0F7 /* MaestroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroApp.swift; sourceTree = "<group>"; };
-		436B567A294919F70004A0F7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		436B567C294919FE0004A0F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		436B567E294919FE0004A0F7 /* Maestro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Maestro.entitlements; sourceTree = "<group>"; };
 		436B5680294919FE0004A0F7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		436B5686294919FF0004A0F7 /* MaestroTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MaestroTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		436B568A294919FF0004A0F7 /* MaestroTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroTests.swift; sourceTree = "<group>"; };
+		436B568A294919FF0004A0F7 /* InDesignScriptingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InDesignScriptingTests.swift; sourceTree = "<group>"; };
 		436B5690294919FF0004A0F7 /* MaestroUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MaestroUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		436B5694294919FF0004A0F7 /* MaestroUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroUITests.swift; sourceTree = "<group>"; };
 		436B5696294919FF0004A0F7 /* MaestroUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		436B56A829491EA70004A0F7 /* RealmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmView.swift; sourceTree = "<group>"; };
+		436B56AC2949203A0004A0F7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlinedTextField.swift; sourceTree = "<group>"; };
+		439F58E62960D74A00B66C48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailsView.swift; sourceTree = "<group>"; };
+		43C9AC7B294A7E0F000C2389 /* Publication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publication.swift; sourceTree = "<group>"; };
+		43C9AC7D294BACD7000C2389 /* RealmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmViewModel.swift; sourceTree = "<group>"; };
+		43D8D3C82984895300877A11 /* RowActionsViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowActionsViewModifier.swift; sourceTree = "<group>"; };
+		43D8D3CA29865CFA00877A11 /* DeadlineListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineListViewModel.swift; sourceTree = "<group>"; };
+		43DC4EDA29588F81009D6170 /* PublicationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationListView.swift; sourceTree = "<group>"; };
+		43E476AD29B15DA400BF9265 /* Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
+		43FEB4142989C091003B43CF /* ChildSizeViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildSizeViewModifier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +156,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				436B56A729491AE40004A0F7 /* RealmSwift in Frameworks */,
+				433E257A29A54CB0002673A9 /* ScriptingBridge.framework in Frameworks */,
+				4378450A296B64BB006B161C /* GridStack in Frameworks */,
+				436B56A529491AE40004A0F7 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +180,128 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2728CB2B298BBE29002BCF1B /* PublicationList */ = {
+			isa = PBXGroup;
+			children = (
+				43DC4EDA29588F81009D6170 /* PublicationListView.swift */,
+				430C9A992966125200F22FEB /* PublicationListViewModel.swift */,
+				430C9A5D2961B19C00F22FEB /* PublicationListItemView.swift */,
+			);
+			path = PublicationList;
+			sourceTree = "<group>";
+		};
+		2728CB30298BF2C5002BCF1B /* UserTasks */ = {
+			isa = PBXGroup;
+			children = (
+				2728CB32298BF311002BCF1B /* UserTasksView.swift */,
+			);
+			path = UserTasks;
+			sourceTree = "<group>";
+		};
+		2728CB31298BF2DD002BCF1B /* GeneralTasks */ = {
+			isa = PBXGroup;
+			children = (
+				2728CB34298BF321002BCF1B /* GeneralTasksView.swift */,
+			);
+			path = GeneralTasks;
+			sourceTree = "<group>";
+		};
+		27EDE71B29A4FC6900F3C22D /* IDControl */ = {
+			isa = PBXGroup;
+			children = (
+				27EDE71C29A4FC6900F3C22D /* Report.swift */,
+				27EDE71D29A4FC6900F3C22D /* IDApplication.swift */,
+				27EDE71E29A4FC6900F3C22D /* IDDocument.swift */,
+				27EDE71F29A4FC6900F3C22D /* InDesignBridge */,
+				27EDE72129A4FC6900F3C22D /* PreflightOptions */,
+			);
+			path = IDControl;
+			sourceTree = "<group>";
+		};
+		27EDE71F29A4FC6900F3C22D /* InDesignBridge */ = {
+			isa = PBXGroup;
+			children = (
+				27EDE72029A4FC6900F3C22D /* InDesignBridge.swift */,
+			);
+			path = InDesignBridge;
+			sourceTree = "<group>";
+		};
+		27EDE72129A4FC6900F3C22D /* PreflightOptions */ = {
+			isa = PBXGroup;
+			children = (
+				27EDE72229A4FC6900F3C22D /* MaestroPreflightOptions.idpp */,
+			);
+			path = PreflightOptions;
+			sourceTree = "<group>";
+		};
+		430DB67F299D1F4F00D324AA /* RowActions */ = {
+			isa = PBXGroup;
+			children = (
+				43D8D3C82984895300877A11 /* RowActionsViewModifier.swift */,
+				430DB680299D1FBC00D324AA /* RowActionsViewModel.swift */,
+			);
+			path = RowActions;
+			sourceTree = "<group>";
+		};
+		43399719294C7E1800A87853 /* LoginView */ = {
+			isa = PBXGroup;
+			children = (
+				436B56AC2949203A0004A0F7 /* LoginView.swift */,
+				4339971C294C7E4800A87853 /* LoginBackground.swift */,
+				43399720294CBC9900A87853 /* LoginErrorView.swift */,
+				43399725294DB0DD00A87853 /* LoginPasswordField.swift */,
+			);
+			path = LoginView;
+			sourceTree = "<group>";
+		};
+		43399722294D223E00A87853 /* RealmView */ = {
+			isa = PBXGroup;
+			children = (
+				436B56A829491EA70004A0F7 /* RealmView.swift */,
+				43C9AC7D294BACD7000C2389 /* RealmViewModel.swift */,
+			);
+			path = RealmView;
+			sourceTree = "<group>";
+		};
+		433A3CFD29AFFDD800DB3421 /* InDesignFiles */ = {
+			isa = PBXGroup;
+			children = (
+				4315F4A429A573FE00D83332 /* empty.indd */,
+				4310ECBF29A9592C0024E414 /* rgbColor.indd */,
+				4358568329AFB95200FC3A59 /* textOverflow.indd */,
+				4358568529AFBA6C00FC3A59 /* imageLink.indd */,
+				4358568729AFBBC400FC3A59 /* imageResolution.indd */,
+			);
+			path = InDesignFiles;
+			sourceTree = "<group>";
+		};
+		433E257829A54CAE002673A9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				433E257929A54CAF002673A9 /* ScriptingBridge.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4358568929AFE64800FC3A59 /* InDesignScriptingTests */ = {
+			isa = PBXGroup;
+			children = (
+				433A3CFD29AFFDD800DB3421 /* InDesignFiles */,
+				436B568A294919FF0004A0F7 /* InDesignScriptingTests.swift */,
+			);
+			path = InDesignScriptingTests;
+			sourceTree = "<group>";
+		};
+		4368E227298B28B00024B80F /* ArticleList */ = {
+			isa = PBXGroup;
+			children = (
+				4315B7B529887748002308AE /* ArticleListView.swift */,
+				4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */,
+				43608E2F296A405100813ADA /* ArticleListItemView.swift */,
+			);
+			path = ArticleList;
+			sourceTree = "<group>";
+		};
 		436B566C294919F70004A0F7 = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +309,7 @@
 				436B5689294919FF0004A0F7 /* MaestroTests */,
 				436B5693294919FF0004A0F7 /* MaestroUITests */,
 				436B5676294919F70004A0F7 /* Products */,
+				433E257829A54CAE002673A9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -95,8 +326,11 @@
 		436B5677294919F70004A0F7 /* Maestro */ = {
 			isa = PBXGroup;
 			children = (
-				436B5678294919F70004A0F7 /* MaestroApp.swift */,
-				436B567A294919F70004A0F7 /* ContentView.swift */,
+				43B5C117294A621000B21995 /* Extensions */,
+				43B5C113294A5E3F00B21995 /* App */,
+				43B5C116294A60A100B21995 /* View */,
+				43C9AC7A294A7DEA000C2389 /* Model */,
+				439F58E62960D74A00B66C48 /* Info.plist */,
 				436B567C294919FE0004A0F7 /* Assets.xcassets */,
 				436B567E294919FE0004A0F7 /* Maestro.entitlements */,
 				436B567F294919FE0004A0F7 /* Preview Content */,
@@ -115,7 +349,7 @@
 		436B5689294919FF0004A0F7 /* MaestroTests */ = {
 			isa = PBXGroup;
 			children = (
-				436B568A294919FF0004A0F7 /* MaestroTests.swift */,
+				4358568929AFE64800FC3A59 /* InDesignScriptingTests */,
 			);
 			path = MaestroTests;
 			sourceTree = "<group>";
@@ -127,6 +361,115 @@
 				436B5696294919FF0004A0F7 /* MaestroUITestsLaunchTests.swift */,
 			);
 			path = MaestroUITests;
+			sourceTree = "<group>";
+		};
+		439EE5822972E495001CC4E7 /* Styling */ = {
+			isa = PBXGroup;
+			children = (
+				43399717294BDD9700A87853 /* AnimatableBackground.swift */,
+				4313415229808EDC00740921 /* StringFormatStyle+StringParseStrategy.swift */,
+				4313415429808F9F00740921 /* UnderlinedControl.swift */,
+				439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */,
+				431341562981E2EA00740921 /* SectionDisclosureGroupStyle.swift */,
+				430DB67F299D1F4F00D324AA /* RowActions */,
+				43FEB4142989C091003B43CF /* ChildSizeViewModifier.swift */,
+			);
+			path = Styling;
+			sourceTree = "<group>";
+		};
+		43B5C113294A5E3F00B21995 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				436B5678294919F70004A0F7 /* MaestroApp.swift */,
+				435D880C295B84F800EC9E8C /* RealmManager.swift */,
+				435D9F8B29B93BE5006F8677 /* RealmAppID.swift */,
+				27EDE71B29A4FC6900F3C22D /* IDControl */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		43B5C116294A60A100B21995 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				43399722294D223E00A87853 /* RealmView */,
+				43399719294C7E1800A87853 /* LoginView */,
+				43CAFDB7295468C4009570C6 /* Main */,
+				439EE5822972E495001CC4E7 /* Styling */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		43B5C117294A621000B21995 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				4339971E294CB3A000A87853 /* View.swift */,
+				435D880A295B1EEC00EC9E8C /* Environment.swift */,
+				43E476AD29B15DA400BF9265 /* Array.swift */,
+				435D9F8D29B93C75006F8677 /* ProcessInfo.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		43C9AC7A294A7DEA000C2389 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				43C9AC7B294A7E0F000C2389 /* Publication.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		43CAFDB7295468C4009570C6 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				43399723294D225B00A87853 /* MainView.swift */,
+				43D8D3D02988751400877A11 /* Tasks */,
+				43D8D3CE2988747400877A11 /* PublicationDetails */,
+				43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */,
+				43608E31296AC42E00813ADA /* LayoutEditor.swift */,
+				2762D73A299D1803006BC645 /* PageView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		43D8D3CC298873F200877A11 /* DeadlineList */ = {
+			isa = PBXGroup;
+			children = (
+				4313415A2983312600740921 /* DeadlineListView.swift */,
+				43D8D3CA29865CFA00877A11 /* DeadlineListViewModel.swift */,
+				431341582983295700740921 /* DeadlineListRowView.swift */,
+			);
+			path = DeadlineList;
+			sourceTree = "<group>";
+		};
+		43D8D3CD2988740C00877A11 /* PublicationSettings */ = {
+			isa = PBXGroup;
+			children = (
+				4313415C298337C400740921 /* PublicationSettingsView.swift */,
+			);
+			path = PublicationSettings;
+			sourceTree = "<group>";
+		};
+		43D8D3CE2988747400877A11 /* PublicationDetails */ = {
+			isa = PBXGroup;
+			children = (
+				430C9A612962232F00F22FEB /* PublicationDetailsView.swift */,
+				43D8D3CD2988740C00877A11 /* PublicationSettings */,
+				43D8D3CC298873F200877A11 /* DeadlineList */,
+				4368E227298B28B00024B80F /* ArticleList */,
+			);
+			path = PublicationDetails;
+			sourceTree = "<group>";
+		};
+		43D8D3D02988751400877A11 /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				2728CB2C298BBE42002BCF1B /* TasksView.swift */,
+				2728CB2E298BCA33002BCF1B /* TasksViewModel.swift */,
+				2728CB2B298BBE29002BCF1B /* PublicationList */,
+				2728CB30298BF2C5002BCF1B /* UserTasks */,
+				2728CB31298BF2DD002BCF1B /* GeneralTasks */,
+			);
+			path = Tasks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,6 +488,11 @@
 			dependencies = (
 			);
 			name = Maestro;
+			packageProductDependencies = (
+				436B56A429491AE40004A0F7 /* Realm */,
+				436B56A629491AE40004A0F7 /* RealmSwift */,
+				43784509296B64BB006B161C /* GridStack */,
+			);
 			productName = Maestro;
 			productReference = 436B5675294919F70004A0F7 /* Maestro.app */;
 			productType = "com.apple.product-type.application";
@@ -193,7 +541,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1410;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					436B5674294919F70004A0F7 = {
 						CreatedOnToolsVersion = 14.1;
@@ -217,6 +565,10 @@
 				Base,
 			);
 			mainGroup = 436B566C294919F70004A0F7;
+			packageReferences = (
+				436B56A329491AE30004A0F7 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				43784508296B64BB006B161C /* XCRemoteSwiftPackageReference "GridStack" */,
+			);
 			productRefGroup = 436B5676294919F70004A0F7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -235,6 +587,7 @@
 			files = (
 				436B5681294919FE0004A0F7 /* Preview Assets.xcassets in Resources */,
 				436B567D294919FE0004A0F7 /* Assets.xcassets in Resources */,
+				27EDE72729A4FC6900F3C22D /* MaestroPreflightOptions.idpp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +595,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4310ECC029A95C3D0024E414 /* rgbColor.indd in Resources */,
+				4358568829AFBBC400FC3A59 /* imageResolution.indd in Resources */,
+				4358568429AFB9BC00FC3A59 /* textOverflow.indd in Resources */,
+				4315F4A529A577E100D83332 /* empty.indd in Resources */,
+				4358568629AFBA6C00FC3A59 /* imageLink.indd in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,7 +617,50 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				436B567B294919F70004A0F7 /* ContentView.swift in Sources */,
+				4339971D294C7E4800A87853 /* LoginBackground.swift in Sources */,
+				2728CB2F298BCA33002BCF1B /* TasksViewModel.swift in Sources */,
+				4368E226298B1C0A0024B80F /* ArticleListViewModel.swift in Sources */,
+				2728CB33298BF311002BCF1B /* UserTasksView.swift in Sources */,
+				4315B7B629887748002308AE /* ArticleListView.swift in Sources */,
+				27EDE72329A4FC6900F3C22D /* Report.swift in Sources */,
+				4313415329808EDC00740921 /* StringFormatStyle+StringParseStrategy.swift in Sources */,
+				4313415529808F9F00740921 /* UnderlinedControl.swift in Sources */,
+				430DB681299D1FBC00D324AA /* RowActionsViewModel.swift in Sources */,
+				43D8D3CB29865CFA00877A11 /* DeadlineListViewModel.swift in Sources */,
+				430C9A622962232F00F22FEB /* PublicationDetailsView.swift in Sources */,
+				2762D73B299D1803006BC645 /* PageView.swift in Sources */,
+				431341592983295800740921 /* DeadlineListRowView.swift in Sources */,
+				43399724294D225B00A87853 /* MainView.swift in Sources */,
+				4339971F294CB3A000A87853 /* View.swift in Sources */,
+				43FEB4152989C091003B43CF /* ChildSizeViewModifier.swift in Sources */,
+				435D880B295B1EEC00EC9E8C /* Environment.swift in Sources */,
+				43E476AE29B15DA400BF9265 /* Array.swift in Sources */,
+				43608E32296AC42E00813ADA /* LayoutEditor.swift in Sources */,
+				43FEB4162989C254003B43CF /* RowActionsViewModifier.swift in Sources */,
+				4313415B2983312600740921 /* DeadlineListView.swift in Sources */,
+				430C9A9A2966125300F22FEB /* PublicationListViewModel.swift in Sources */,
+				27EDE72529A4FC6900F3C22D /* IDDocument.swift in Sources */,
+				436B56A929491EA70004A0F7 /* RealmView.swift in Sources */,
+				4313415D298337C400740921 /* PublicationSettingsView.swift in Sources */,
+				435D880D295B84F900EC9E8C /* RealmManager.swift in Sources */,
+				435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */,
+				43399718294BDD9700A87853 /* AnimatableBackground.swift in Sources */,
+				439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */,
+				43C9AC7E294BACD7000C2389 /* RealmViewModel.swift in Sources */,
+				430C9A5E2961B19C00F22FEB /* PublicationListItemView.swift in Sources */,
+				435D9F8E29B93C75006F8677 /* ProcessInfo.swift in Sources */,
+				43BAC872296B1B7F0044BF0C /* ArticleDetailsView.swift in Sources */,
+				43399726294DB0DD00A87853 /* LoginPasswordField.swift in Sources */,
+				2728CB2D298BBE42002BCF1B /* TasksView.swift in Sources */,
+				27EDE72429A4FC6900F3C22D /* IDApplication.swift in Sources */,
+				436B56AD2949203B0004A0F7 /* LoginView.swift in Sources */,
+				43DC4EDB29588F81009D6170 /* PublicationListView.swift in Sources */,
+				27EDE72629A4FC6900F3C22D /* InDesignBridge.swift in Sources */,
+				43608E30296A405100813ADA /* ArticleListItemView.swift in Sources */,
+				43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */,
+				2728CB35298BF321002BCF1B /* GeneralTasksView.swift in Sources */,
+				43399721294CBC9900A87853 /* LoginErrorView.swift in Sources */,
+				431341572981E2EA00740921 /* SectionDisclosureGroupStyle.swift in Sources */,
 				436B5679294919F70004A0F7 /* MaestroApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,7 +669,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				436B568B294919FF0004A0F7 /* MaestroTests.swift in Sources */,
+				436B568B294919FF0004A0F7 /* InDesignScriptingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +731,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -350,6 +752,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CODE_SIGN_FLAGS = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -388,6 +791,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -401,6 +805,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CODE_SIGN_FLAGS = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
@@ -412,13 +817,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Maestro/Maestro.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Maestro/Preview Content\"";
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				ENABLE_HARDENED_RUNTIME = YES;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Maestro/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Kérlek engedélyezd a hozzáférést az AppleEvent kommunikációhoz!";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -436,13 +847,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sashalmiimre.Maestro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -452,13 +864,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Maestro/Maestro.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Maestro/Preview Content\"";
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				ENABLE_HARDENED_RUNTIME = YES;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Maestro/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Kérlek engedélyezd a hozzáférést az AppleEvent kommunikációhoz!";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -476,13 +894,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sashalmiimre.Maestro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -491,8 +910,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
@@ -500,6 +921,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sashalmiimre.MaestroTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -514,8 +936,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
@@ -523,6 +947,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sashalmiimre.MaestroTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -538,6 +963,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
@@ -560,6 +986,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AA44D8LDXU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
@@ -616,6 +1043,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		436B56A329491AE30004A0F7 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		43784508296B64BB006B161C /* XCRemoteSwiftPackageReference "GridStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pietropizzi/GridStack.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		436B56A429491AE40004A0F7 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 436B56A329491AE30004A0F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = Realm;
+		};
+		436B56A629491AE40004A0F7 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 436B56A329491AE30004A0F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		43784509296B64BB006B161C /* GridStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 43784508296B64BB006B161C /* XCRemoteSwiftPackageReference "GridStack" */;
+			productName = GridStack;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 436B566D294919F70004A0F7 /* Project object */;
 }
