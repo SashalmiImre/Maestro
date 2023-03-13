@@ -11,7 +11,6 @@ import BackgroundTasks
 
 @main
 struct MaestroApp: SwiftUI.App {
-    private var realmManager: RealmManager = .shared
     
 #if os(iOS)
     @Environment(\.scenePhase) private var phase

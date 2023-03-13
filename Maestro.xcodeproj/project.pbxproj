@@ -42,6 +42,7 @@
 		4358568829AFBBC400FC3A59 /* imageResolution.indd in Resources */ = {isa = PBXBuildFile; fileRef = 4358568729AFBBC400FC3A59 /* imageResolution.indd */; };
 		435D880B295B1EEC00EC9E8C /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D880A295B1EEC00EC9E8C /* Environment.swift */; };
 		435D880D295B84F900EC9E8C /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D880C295B84F800EC9E8C /* RealmManager.swift */; };
+		435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8B29B93BE5006F8677 /* RealmAppID.swift */; };
 		435D9F8E29B93C75006F8677 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8D29B93C75006F8677 /* ProcessInfo.swift */; };
 		43608E30296A405100813ADA /* ArticleListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E2F296A405100813ADA /* ArticleListItemView.swift */; };
 		43608E32296AC42E00813ADA /* LayoutEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E31296AC42E00813ADA /* LayoutEditor.swift */; };
@@ -59,6 +60,7 @@
 		4378450A296B64BB006B161C /* GridStack in Frameworks */ = {isa = PBXBuildFile; productRef = 43784509296B64BB006B161C /* GridStack */; };
 		439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */; };
 		43BAC872296B1B7F0044BF0C /* ArticleDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */; };
+		43BC06F129BFD229008BE3FB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 439F58E62960D74A00B66C48 /* Info.plist */; };
 		43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7B294A7E0F000C2389 /* Publication.swift */; };
 		43C9AC7E294BACD7000C2389 /* RealmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7D294BACD7000C2389 /* RealmViewModel.swift */; };
 		43D8D3CB29865CFA00877A11 /* DeadlineListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8D3CA29865CFA00877A11 /* DeadlineListViewModel.swift */; };
@@ -121,8 +123,9 @@
 		4358568729AFBBC400FC3A59 /* imageResolution.indd */ = {isa = PBXFileReference; lastKnownFileType = file; path = imageResolution.indd; sourceTree = "<group>"; };
 		435D880A295B1EEC00EC9E8C /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		435D880C295B84F800EC9E8C /* RealmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
+		435D9F8B29B93BE5006F8677 /* RealmAppID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmAppID.swift; sourceTree = "<group>"; };
 		435D9F8D29B93C75006F8677 /* ProcessInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
-		435D9F9029BCBB3D006F8677 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		435D9F8F29BC82C5006F8677 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		43608E2F296A405100813ADA /* ArticleListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListItemView.swift; sourceTree = "<group>"; };
 		43608E31296AC42E00813ADA /* LayoutEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutEditor.swift; sourceTree = "<group>"; };
 		4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListViewModel.swift; sourceTree = "<group>"; };
@@ -304,7 +307,7 @@
 		436B566C294919F70004A0F7 = {
 			isa = PBXGroup;
 			children = (
-				435D9F9029BCBB3D006F8677 /* .gitignore */,
+				435D9F8F29BC82C5006F8677 /* .gitignore */,
 				436B5677294919F70004A0F7 /* Maestro */,
 				436B5689294919FF0004A0F7 /* MaestroTests */,
 				436B5693294919FF0004A0F7 /* MaestroUITests */,
@@ -382,6 +385,7 @@
 			children = (
 				436B5678294919F70004A0F7 /* MaestroApp.swift */,
 				435D880C295B84F800EC9E8C /* RealmManager.swift */,
+				435D9F8B29B93BE5006F8677 /* RealmAppID.swift */,
 				27EDE71B29A4FC6900F3C22D /* IDControl */,
 			);
 			path = App;
@@ -584,6 +588,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43BC06F129BFD229008BE3FB /* Info.plist in Resources */,
 				436B5681294919FE0004A0F7 /* Preview Assets.xcassets in Resources */,
 				436B567D294919FE0004A0F7 /* Assets.xcassets in Resources */,
 				27EDE72729A4FC6900F3C22D /* MaestroPreflightOptions.idpp in Resources */,
@@ -642,6 +647,7 @@
 				436B56A929491EA70004A0F7 /* RealmView.swift in Sources */,
 				4313415D298337C400740921 /* PublicationSettingsView.swift in Sources */,
 				435D880D295B84F900EC9E8C /* RealmManager.swift in Sources */,
+				435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */,
 				43399718294BDD9700A87853 /* AnimatableBackground.swift in Sources */,
 				439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */,
 				43C9AC7E294BACD7000C2389 /* RealmViewModel.swift in Sources */,

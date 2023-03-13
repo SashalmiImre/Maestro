@@ -13,5 +13,7 @@ import Combine
 extension RealmView {
     struct RealmViewModel: DynamicProperty {
         @AutoOpen(appId: RealmManager.appId, timeout: 4000) var autoOpen
+        var subscriptions: Set<AnyCancellable> = .init()
+        @State var realmErrorMessage: String?
     }
 }

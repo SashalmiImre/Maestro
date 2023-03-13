@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RealmSwift
+import Combine
 
 struct RealmView<Login, Connect, Content, Progress, Error>: View
 where Login: View, Connect: View, Content: View, Progress: View, Error: View {
@@ -18,26 +19,33 @@ where Login: View, Connect: View, Content: View, Progress: View, Error: View {
     private var progress: (Foundation.Progress) -> Progress
     private var error:    (Swift.Error) -> Error
     
+    @Environment(\.realmManager) var realmManager: RealmManager
     @Environment(\.realmApplication) var application: RealmSwift.App
     @Environment(\.realm) var realm: Realm
     @Environment(\.realmConfiguration) var configuration: Realm.Configuration
-    @Environment(\.isPreview) var isPreview: Bool
 
 
     // MARK: - Body
     
     var body: some View {
-        if isPreview {
-            content()
-        } else if application.currentUser == nil {
-            login()
-        } else {
-            viewSelect
+        VStack {
+            if ProcessInfo.isPreview {
+                content()
+            } else if application.currentUser == nil {
+                login()
+            } else {
+                viewSelection
+            }
+            Text(viewModel.realmErrorMessage ?? "")
+                .padding()
+                .onReceive(realmManager.errorMessage) { message in
+                    viewModel.realmErrorMessage = message
+                }
         }
     }
     
     @ViewBuilder
-    private var viewSelect: some View {
+    private var viewSelection: some View {
         switch viewModel.autoOpen {
             
         case .connecting:
@@ -71,6 +79,14 @@ where Login: View, Connect: View, Content: View, Progress: View, Error: View {
         self.content  = content
         self.progress = progress
         self.error    = error
+        
+//        realmManager.errorMessage.sink { error in
+//
+//        } receiveValue: { errorMessage in
+//            viewModel.realmErrorMessage = errorMessage
+//        }
+//        .store(in: &self.viewModel.subscriptions)
+
     }
 }
 

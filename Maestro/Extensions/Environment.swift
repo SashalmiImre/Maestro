@@ -12,21 +12,25 @@ import SwiftUI
 
 // MARK: - Realm application
 
-private struct RealmApplication: EnvironmentKey {
+private struct RealmApplicationEnvironmentKey: EnvironmentKey {
     static let defaultValue: RealmSwift.App = RealmManager.shared.application
 }
 
 extension EnvironmentValues {
     var realmApplication: RealmSwift.App {
-        RealmManager.shared.application
+        get { self[RealmApplicationEnvironmentKey.self] }
     }
 }
 
 
-// MARK: - XCode privew process info
+//  MARK: - Realm manager
+
+private struct RealmManagerEnvironmentKey: EnvironmentKey {
+    static let defaultValue: RealmManager = .shared
+}
 
 extension EnvironmentValues {
-    var isPreview: Bool {
-        ProcessInfo.isPreview
+    var realmManager: RealmManager {
+        get { self[RealmManagerEnvironmentKey.self] }
     }
 }

@@ -13,7 +13,7 @@ struct ArticleListView: View {
     
     var body: some View {
         DisclosureGroup("Cikkek", isExpanded: vm.$isExpanded) {
-            ForEach(vm.$publication.articles, id: \.self) { article in
+            ForEach(vm.$publication.articles, id: \.self) { (article: Binding<Article>) in
 #if os(macOS)
                 ArticleListItemView(article: article)
                     .transition(.scale)
@@ -32,10 +32,10 @@ struct ArticleListView: View {
                 }
                 .transition(.scale)
                 .rowActions(edge: .leading) {
-                    deleteButton(target: article)
+                    deleteButton(target: article.wrappedValue)
                 }
                 .rowActions {
-                    validateButton(target: article)
+                    validateButton(target: article.wrappedValue)
                 }
                 
 #endif

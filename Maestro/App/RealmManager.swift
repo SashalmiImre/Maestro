@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import Combine
 
 class RealmManager {
     static var shared = RealmManager()
@@ -15,6 +16,8 @@ class RealmManager {
     private(set) var realm: Realm?
     private      var backupURL: URL { (realm!.configuration.fileURL!.appendingPathExtension("backup")) }
     
+    var errorMessage: CurrentValueSubject<String?, Never> = .init(nil)
+
     private init() {
         setRealm()
     }
@@ -22,8 +25,9 @@ class RealmManager {
     private func setRealm() {
         ProcessInfo.isPreview ? realmForPreview() : realmForUser()
         if realm == nil {
-            print("no realm")
+            errorMessage.send("Nem sikerült inicializálni az adatbázist!")
         }
+        errorMessage.send("Sikerült inicializálni az adatbázist!")
     }
     
     
@@ -60,10 +64,11 @@ class RealmManager {
         var config = user.flexibleSyncConfiguration(clientResetMode: clientReset,
                                                     initialSubscriptions: syncSubscriptions,
                                                     rerunOnOpen: true)
-#if DEBUG
-        // config.deleteRealmIfMigrationNeeded = true
-#else
         config.migrationBlock = migrationBlock
+
+#if DEBUG
+        // Csak leállított szinkronizációnál használható
+        // config.deleteRealmIfMigrationNeeded = true
 #endif
         Realm.Configuration.defaultConfiguration = config
         return config
@@ -77,9 +82,7 @@ class RealmManager {
         do {
             realm = try Realm()
         } catch let error {
-            print(error)
-            try? FileManager.default.removeItem(at: Realm.Configuration.defaultConfiguration.fileURL!)
-            realm = try! Realm()
+            errorMessage.send("Nem sikerült inicializálni az adatbázist! \(error.localizedDescription)")
         }
     }
     
@@ -98,7 +101,8 @@ class RealmManager {
     
     private func syncErrorHandler(error: Error, session: SyncSession?) {
         guard let syncError = error as? SyncError else {
-            fatalError("Unexpected error type passed to sync error handler! \(error)")
+            errorMessage.send("Nem megfelelő típusú hiba a szinkronizáció hibakezelőjénél!")
+            return
         }
         switch syncError.code {
         case .clientResetError:
@@ -128,44 +132,48 @@ class RealmManager {
             break
             
         @unknown default:
+            errorMessage.send("Ismeretlen szinkronizációs hiba!")
             fatalError("Unknown sync error!")
         }
+    }
+        
+    private func beforeClientReset(before: Realm) {
+        // TODO: Éles verziónál mindenképp meg kell oldani
+        errorMessage.send("A kliens visszaállítás utáni blokk egyelőre nincs implementálva!")
+    }
+    
+    private func afterClientReset(before: Realm, after: Realm) {
+        // TODO: Éles verziónál mindenképp meg kell oldani
+        errorMessage.send("A kliens visszaállítás utáni blokk egyelőre nincs implementálva!")
     }
     
     
     // MARK: - Backup
     
-    private func backup() {
+    private func backup(realm: Realm? = nil) {
+        let realm = realm ?? self.realm
         do {
             try realm?.writeCopy(toFile: backupURL)
-        } catch {
-            print("Error backing up data")
+        } catch let error {
+            errorMessage.send("Nem lehetett biztonsági másolatot készíteni az adatbázisfájlról! \(error.localizedDescription)")
         }
     }
     
-    
-    // MARK: - Client reset
-    
-    private func beforeClientReset(before: Realm) {
-        print("BEFORE CLIENT RESET CALLED")
-        var recoveryConfig = Realm.Configuration()
-        recoveryConfig.fileURL = backupURL
+    private func deleteBackup() {
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: backupURL.path(percentEncoded: false)) else { return }
         do {
-            print("Trying create backup to path: \(String(describing: recoveryConfig.fileURL))")
-            try before.writeCopy(configuration: recoveryConfig)
+            try FileManager.default.removeItem(atPath: backupURL.path(percentEncoded: false))
         } catch {
-            // handle error
+            errorMessage.send("Nem lehetett törölni a biztonsági másolatot! \(error.localizedDescription)")
         }
-    }
-    
-    private func afterClientReset(before: Realm, after: Realm) {
-        print("AFTER CLIENT RESET CALLED")
     }
     
     
     // MARK: - Migration
     
-    var migrationBlock: MigrationBlock = { migration, oldSchemaVersion in
-        print("MIGRATION BLOCK CALLED")
+    func migrationBlock(_ migration: Migration, _ oldSchemaVersion: UInt64) {
+        // TODO: Éles verziónál mindenképp meg kell oldani
+        errorMessage.send("A migrációs blokk egyelőre nincs implementálva!")
     }
 }
