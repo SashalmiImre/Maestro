@@ -58,6 +58,11 @@
 		436B56A929491EA70004A0F7 /* RealmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B56A829491EA70004A0F7 /* RealmView.swift */; };
 		436B56AD2949203B0004A0F7 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B56AC2949203A0004A0F7 /* LoginView.swift */; };
 		4378450A296B64BB006B161C /* GridStack in Frameworks */ = {isa = PBXBuildFile; productRef = 43784509296B64BB006B161C /* GridStack */; };
+		43839CC429C3CCC60063D3FD /* PageReservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43839CC329C3CCC60063D3FD /* PageReservation.swift */; };
+		43839CC629C3CCE50063D3FD /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43839CC529C3CCE50063D3FD /* Article.swift */; };
+		43839CC829C3CD170063D3FD /* Advertising.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43839CC729C3CD170063D3FD /* Advertising.swift */; };
+		43839CCA29C3CD460063D3FD /* Deadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43839CC929C3CD460063D3FD /* Deadline.swift */; };
+		43839CCC29C3CD890063D3FD /* Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43839CCB29C3CD890063D3FD /* Size.swift */; };
 		439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */; };
 		43BAC872296B1B7F0044BF0C /* ArticleDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */; };
 		43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7B294A7E0F000C2389 /* Publication.swift */; };
@@ -140,6 +145,11 @@
 		436B5696294919FF0004A0F7 /* MaestroUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		436B56A829491EA70004A0F7 /* RealmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmView.swift; sourceTree = "<group>"; };
 		436B56AC2949203A0004A0F7 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		43839CC329C3CCC60063D3FD /* PageReservation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageReservation.swift; sourceTree = "<group>"; };
+		43839CC529C3CCE50063D3FD /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
+		43839CC729C3CD170063D3FD /* Advertising.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advertising.swift; sourceTree = "<group>"; };
+		43839CC929C3CD460063D3FD /* Deadline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deadline.swift; sourceTree = "<group>"; };
+		43839CCB29C3CD890063D3FD /* Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Size.swift; sourceTree = "<group>"; };
 		439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlinedTextField.swift; sourceTree = "<group>"; };
 		439F58E62960D74A00B66C48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailsView.swift; sourceTree = "<group>"; };
@@ -425,6 +435,11 @@
 			isa = PBXGroup;
 			children = (
 				43C9AC7B294A7E0F000C2389 /* Publication.swift */,
+				43839CC329C3CCC60063D3FD /* PageReservation.swift */,
+				43839CC529C3CCE50063D3FD /* Article.swift */,
+				43839CC729C3CD170063D3FD /* Advertising.swift */,
+				43839CC929C3CD460063D3FD /* Deadline.swift */,
+				43839CCB29C3CD890063D3FD /* Size.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -639,6 +654,7 @@
 				43D8D3CB29865CFA00877A11 /* DeadlineListViewModel.swift in Sources */,
 				430C9A622962232F00F22FEB /* PublicationDetailsView.swift in Sources */,
 				2762D73B299D1803006BC645 /* PageView.swift in Sources */,
+				43839CC829C3CD170063D3FD /* Advertising.swift in Sources */,
 				431341592983295800740921 /* DeadlineListRowView.swift in Sources */,
 				43399724294D225B00A87853 /* MainView.swift in Sources */,
 				4339971F294CB3A000A87853 /* View.swift in Sources */,
@@ -652,6 +668,7 @@
 				27EDE72529A4FC6900F3C22D /* IDDocument.swift in Sources */,
 				436B56A929491EA70004A0F7 /* RealmView.swift in Sources */,
 				4313415D298337C400740921 /* PublicationSettingsView.swift in Sources */,
+				43839CC629C3CCE50063D3FD /* Article.swift in Sources */,
 				435D880D295B84F900EC9E8C /* RealmManager.swift in Sources */,
 				435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */,
 				43399718294BDD9700A87853 /* AnimatableBackground.swift in Sources */,
@@ -665,10 +682,13 @@
 				27EDE72429A4FC6900F3C22D /* IDApplication.swift in Sources */,
 				436B56AD2949203B0004A0F7 /* LoginView.swift in Sources */,
 				43DC4EDB29588F81009D6170 /* PublicationListView.swift in Sources */,
+				43839CCA29C3CD460063D3FD /* Deadline.swift in Sources */,
 				27EDE72629A4FC6900F3C22D /* InDesignBridge.swift in Sources */,
 				43608E30296A405100813ADA /* ArticleListItemView.swift in Sources */,
 				43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */,
+				43839CC429C3CCC60063D3FD /* PageReservation.swift in Sources */,
 				2728CB35298BF321002BCF1B /* GeneralTasksView.swift in Sources */,
+				43839CCC29C3CD890063D3FD /* Size.swift in Sources */,
 				43399721294CBC9900A87853 /* LoginErrorView.swift in Sources */,
 				431341572981E2EA00740921 /* SectionDisclosureGroupStyle.swift in Sources */,
 				436B5679294919F70004A0F7 /* MaestroApp.swift in Sources */,

@@ -18,35 +18,8 @@ class Publication: Object, ObjectKeyIdentifiable {
     @Persisted var endPageNumber: Int = 1
     @Persisted var pageSize: Size? = .init()
     @Persisted var articles: List<Article> = .init()
+    @Persisted var advertising: List<Advertising> = .init()
     @Persisted var deadlines: List<Deadline> = .init()
-}
-
-class Article: EmbeddedObject {
-    @Persisted var name: String = "Untitled"
-    @Persisted var reservations: List<PageReservation> = .init()
-}
-
-class Deadline: EmbeddedObject {
-    @Persisted var date: Date
-    @Persisted var startPageNumber: Int = 1
-    @Persisted var endPageNumber: Int = 1
-}
-
-class PageReservation: EmbeddedObject {
-    enum Orientation: String, PersistableEnum {
-        case portrait
-        case landscape
-    }
-    
-    @Persisted var pageNumber: Int = 1
-    @Persisted var percentage: Int = 100
-    @Persisted var pageSize: Size? = Size()
-    @Persisted var orientation: Orientation = .portrait
-}
-
-class Size: EmbeddedObject {
-    @Persisted var width: Int = 205
-    @Persisted var height: Int = 275
 }
 
 
@@ -79,28 +52,6 @@ extension Publication {
         publication.startPageNumber = 1
         publication.endPageNumber = 52
         return publication
-    }
-}
-#endif
-
-#if DEBUG
-extension Article {
-    static var article1: Article {
-        let article = Article()
-        article.reservations.append(PageReservation.pageReservation1)
-        return article
-    }
-}
-#endif
-
-#if DEBUG
-extension PageReservation {
-    static var pageReservation1: PageReservation {
-        let pageReservation = PageReservation()
-        pageReservation.orientation = .portrait
-        pageReservation.percentage = 100
-        pageReservation.pageNumber = 3
-        return pageReservation
     }
 }
 #endif

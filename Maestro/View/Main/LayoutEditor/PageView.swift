@@ -11,7 +11,7 @@ struct PageView: View {
     var number: Int
     var parity: Parity { Parity(number) }
     var isDummy: Bool = false
-    @Binding var article: Article
+//    @Binding var article: Article
     
     var body: some View {
         VStack {
