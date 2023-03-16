@@ -1,5 +1,5 @@
 //
-//  AppEnvironmentValues.swift
+//  RealmManager.swift
 //  Maestro
 //
 //  Created by Sashalmi Imre on 2022. 12. 14..
@@ -52,10 +52,16 @@ class RealmManager {
     // MARK: - Setting for user
     
     private func realmForUser() {
+#if DEBUG
+        Realm.Configuration.defaultConfiguration.deleteRealmIfMigrationNeeded = true
+        realm = try! Realm()
+        return
+#else
         guard let user = application.currentUser else { return }
         application.syncManager.errorHandler = syncErrorHandler
         Realm.Configuration.defaultConfiguration = configuration(forUser: user)
         start()
+#endif
     }
     
     private func configuration(forUser user: User) -> Realm.Configuration {
@@ -65,11 +71,6 @@ class RealmManager {
                                                     initialSubscriptions: syncSubscriptions,
                                                     rerunOnOpen: true)
         config.migrationBlock = migrationBlock
-
-#if DEBUG
-        // Csak leállított szinkronizációnál használható
-        // config.deleteRealmIfMigrationNeeded = true
-#endif
         Realm.Configuration.defaultConfiguration = config
         return config
     }

@@ -38,7 +38,7 @@ extension ArticleListView {
         }
         
         func delete(_ article: Article) {
-            guard let index = publication.articles.index(of: article) else { return }
+            guard let index = publication.articles.firstIndex(of: article) else { return }
             withAnimation {
                 $publication.articles.remove(at: index)
             }
