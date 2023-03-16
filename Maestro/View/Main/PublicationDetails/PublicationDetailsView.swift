@@ -24,7 +24,7 @@ struct PublicationDetailsView: View {
             content
                 .tabItem { Label("Lista nézet", systemImage: "list.dash") }
             
-            LayoutEditor()
+            LayoutEditorView(publication: publication)
                 .tabItem { Label("Elrendezés nézet", systemImage: "rectangle.grid.2x2") }
         }
         .navigationTitle(publication.name)

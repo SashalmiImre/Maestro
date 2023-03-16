@@ -45,7 +45,7 @@
 		435D9F8C29B93BE5006F8677 /* RealmAppID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8B29B93BE5006F8677 /* RealmAppID.swift */; };
 		435D9F8E29B93C75006F8677 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D9F8D29B93C75006F8677 /* ProcessInfo.swift */; };
 		43608E30296A405100813ADA /* ArticleListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E2F296A405100813ADA /* ArticleListItemView.swift */; };
-		43608E32296AC42E00813ADA /* LayoutEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E31296AC42E00813ADA /* LayoutEditor.swift */; };
+		43608E32296AC42E00813ADA /* LayoutEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43608E31296AC42E00813ADA /* LayoutEditorView.swift */; };
 		4368E226298B1C0A0024B80F /* ArticleListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */; };
 		436B5679294919F70004A0F7 /* MaestroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436B5678294919F70004A0F7 /* MaestroApp.swift */; };
 		436B567D294919FE0004A0F7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 436B567C294919FE0004A0F7 /* Assets.xcassets */; };
@@ -60,7 +60,6 @@
 		4378450A296B64BB006B161C /* GridStack in Frameworks */ = {isa = PBXBuildFile; productRef = 43784509296B64BB006B161C /* GridStack */; };
 		439EE5842972E4AC001CC4E7 /* UnderlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439EE5832972E4AC001CC4E7 /* UnderlinedTextField.swift */; };
 		43BAC872296B1B7F0044BF0C /* ArticleDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */; };
-		43BC06F129BFD229008BE3FB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 439F58E62960D74A00B66C48 /* Info.plist */; };
 		43C9AC7C294A7E0F000C2389 /* Publication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7B294A7E0F000C2389 /* Publication.swift */; };
 		43C9AC7E294BACD7000C2389 /* RealmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C9AC7D294BACD7000C2389 /* RealmViewModel.swift */; };
 		43D8D3CB29865CFA00877A11 /* DeadlineListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8D3CA29865CFA00877A11 /* DeadlineListViewModel.swift */; };
@@ -127,7 +126,7 @@
 		435D9F8D29B93C75006F8677 /* ProcessInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
 		435D9F8F29BC82C5006F8677 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		43608E2F296A405100813ADA /* ArticleListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListItemView.swift; sourceTree = "<group>"; };
-		43608E31296AC42E00813ADA /* LayoutEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutEditor.swift; sourceTree = "<group>"; };
+		43608E31296AC42E00813ADA /* LayoutEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutEditorView.swift; sourceTree = "<group>"; };
 		4368E225298B1C0A0024B80F /* ArticleListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListViewModel.swift; sourceTree = "<group>"; };
 		436B5675294919F70004A0F7 /* Maestro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maestro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		436B5678294919F70004A0F7 /* MaestroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaestroApp.swift; sourceTree = "<group>"; };
@@ -413,6 +412,15 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		43BC06F229BFE2C8008BE3FB /* LayoutEditor */ = {
+			isa = PBXGroup;
+			children = (
+				43608E31296AC42E00813ADA /* LayoutEditorView.swift */,
+				2762D73A299D1803006BC645 /* PageView.swift */,
+			);
+			path = LayoutEditor;
+			sourceTree = "<group>";
+		};
 		43C9AC7A294A7DEA000C2389 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -428,8 +436,7 @@
 				43D8D3D02988751400877A11 /* Tasks */,
 				43D8D3CE2988747400877A11 /* PublicationDetails */,
 				43BAC871296B1B7F0044BF0C /* ArticleDetailsView.swift */,
-				43608E31296AC42E00813ADA /* LayoutEditor.swift */,
-				2762D73A299D1803006BC645 /* PageView.swift */,
+				43BC06F229BFE2C8008BE3FB /* LayoutEditor */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -588,7 +595,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				43BC06F129BFD229008BE3FB /* Info.plist in Resources */,
 				436B5681294919FE0004A0F7 /* Preview Assets.xcassets in Resources */,
 				436B567D294919FE0004A0F7 /* Assets.xcassets in Resources */,
 				27EDE72729A4FC6900F3C22D /* MaestroPreflightOptions.idpp in Resources */,
@@ -639,7 +645,7 @@
 				43FEB4152989C091003B43CF /* ChildSizeViewModifier.swift in Sources */,
 				435D880B295B1EEC00EC9E8C /* Environment.swift in Sources */,
 				43E476AE29B15DA400BF9265 /* Array.swift in Sources */,
-				43608E32296AC42E00813ADA /* LayoutEditor.swift in Sources */,
+				43608E32296AC42E00813ADA /* LayoutEditorView.swift in Sources */,
 				43FEB4162989C254003B43CF /* RowActionsViewModifier.swift in Sources */,
 				4313415B2983312600740921 /* DeadlineListView.swift in Sources */,
 				430C9A9A2966125300F22FEB /* PublicationListViewModel.swift in Sources */,

@@ -15,7 +15,7 @@ struct MainView: View {
         } content: {
             Text("articles")
         } detail: {
-            LayoutEditor()
+            LayoutEditorView(publication: Publication.publication1)
         }
         .navigationSplitViewStyle(.prominentDetail)
     }

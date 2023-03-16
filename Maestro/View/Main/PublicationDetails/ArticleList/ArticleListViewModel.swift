@@ -13,7 +13,6 @@ extension ArticleListView {
     struct ArticleListViewModel: DynamicProperty {
         @ObservedRealmObject var publication: Publication
         
-        @State var selected: Article?
         @State var isExpanded: Bool = true
         @State var showingAlert: Bool = false
         @State var selectedArticle: Article?
