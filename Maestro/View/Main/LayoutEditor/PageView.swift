@@ -6,16 +6,20 @@
 //
 
 import SwiftUI
+import RealmSwift
 
 struct PageView: View {
-    var number: Int
-    var parity: Parity { Parity(number) }
+    @ObservedRealmObject var publication: Publication
+
+    var pageNumber: Int
     var isDummy: Bool = false
-//    @Binding var article: Article
+    var parity: Parity { Parity(pageNumber) }
+    var articles: Results<Article> { publication.articles(for: pageNumber) }
+    var advertising: Results<Advertising> { publication.advertising(for: pageNumber) }
     
     var body: some View {
         VStack {
-            pageNumber
+            pageNumberView
                 .frame(maxWidth: .infinity,
                        maxHeight: .infinity,
                        alignment: parity == .even ? .bottomLeading : .bottomTrailing)
@@ -23,17 +27,12 @@ struct PageView: View {
         .frame(width: 70, height: 100)
     }
     
-    @ViewBuilder var pageNumber: some View {
-        Text(isDummy ? "" : String(number))
+    @ViewBuilder var pageNumberView: some View {
+        Text(isDummy ? "" : String(pageNumber))
             .font(.footnote)
             .padding(.top, 3.0)
     }
-    
-//    @ViewBuilder var articlePageView: some View {
-//        
-//    }
 }
-
 
 // MARK: - Parity
 
@@ -51,11 +50,11 @@ extension PageView {
 
 struct PageView_Previews: PreviewProvider {
     static var previews: some View {
-        PageView(number: 51)
+        PageView(publication: Publication.publication1, pageNumber: 3)
             .previewDevice(PreviewDevice(rawValue: "Mac"))
             .previewDisplayName("PublicationDetails Mac")
         
-        PageView(number: 51)
+        PageView(publication: Publication.publication1, pageNumber: 3)
             .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
             .previewDisplayName("PublicationDetails iOS")
     }

@@ -15,12 +15,14 @@ struct MainView: View {
         } content: {
             Text("articles")
         } detail: {
-            LayoutEditorView(publication: Publication.publication1)
+            LayoutEditorView()
         }
         .navigationSplitViewStyle(.prominentDetail)
     }
 }
 
+
+// MARK: - Previews
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

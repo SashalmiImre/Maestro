@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 class Article: PageReservation {
-    
+    @Persisted(originProperty: "articles") var publication: LinkingObjects<Publication>
 }
 
 

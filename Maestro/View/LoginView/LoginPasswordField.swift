@@ -66,6 +66,8 @@ struct LoginPasswordField: View {
 }
 
 
+// MARK: - Previews
+
 struct LoginPasswordField_Previews: PreviewProvider {
     static var previews: some View {
         LoginPasswordField(text: .constant("PASSWORD"))

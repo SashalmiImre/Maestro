@@ -18,8 +18,16 @@ class Publication: Object, ObjectKeyIdentifiable {
     @Persisted var endPageNumber: Int = 1
     @Persisted var pageSize: Size? = .init()
     @Persisted var articles: List<Article> = .init()
-    @Persisted var advertising: List<Advertising> = .init()
+    @Persisted var advertisements: List<Advertising> = .init()
     @Persisted var deadlines: List<Deadline> = .init()
+    
+    func articles(for pageNumber: Int) -> Results<Article> {
+        return articles.where { $0.pageNumber == pageNumber }
+    }
+    
+    func advertising(for pageNumber: Int) -> Results<Advertising> {
+        return advertisements.where { $0.pageNumber == pageNumber }
+    }
 }
 
 

@@ -9,48 +9,54 @@ import SwiftUI
 import RealmSwift
 
 struct PublicationListView: View {
-    private var vm = PublicationListViewModel()
+    @ObservedResults(Publication.self) var publications: Results<Publication>
+    
+    @State var showingAlert: Bool = false
+    @State var selectedPublication: Publication?
+    @State var publicationToDelete: Publication?
+    @State var typedPublicationName: String = ""
+
     
     var body: some View {
         DisclosureGroup("Kiadványok") {
-            ForEach(vm.publications, id: \.self) { publication in
-                NavigationLink {
-                    PublicationDetailsView(publication: publication)
-                } label: {
-                    PublicationListItemView(publication: publication)
-                }
-                .buttonStyle(.plain)
-                .transition(.scale)
-                .rowActions(edge: .leading) {
-                    Button {
-                        withAnimation {
-                            vm.deletePublication(publication)
+            ForEach(publications, id: \.self) { publication in
+                    NavigationLink {
+                        PublicationDetailsView(publication: publication)
+                    } label: {
+                        PublicationListItemView(publication: publication)
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.scale)
+                    .rowActions(edge: .leading) {
+                        Button {
+                            withAnimation {
+                                deletePublication(publication)
+                            }
+                        } label: {
+                            Image(systemName: "trash.circle.fill")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, .red)
                         }
-                    } label: {
-                        Image(systemName: "trash.circle.fill")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(.white, .red)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                }
-                .rowActions {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(.white, .blue)
+                    .rowActions {
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, .blue)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
-                
-            }
+            
             Button {
-                vm.add(publication: Publication())
+                add(publication: Publication())
             } label: {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -65,18 +71,39 @@ struct PublicationListView: View {
         .disclosureGroupStyle(SectionDisclosureGroupStyle())
         
         .alert("Kiadvány törlésének megerősítése",
-               isPresented: vm.$showingAlert,
-               presenting: vm.publicationToDelete) { publication in
-            TextField(publication.name, text: vm.$typedPublicationName)
+               isPresented: $showingAlert,
+               presenting: publicationToDelete) { publication in
+            TextField(publication.name, text: $typedPublicationName)
             Button("Elvetés", role: .cancel, action: {})
                 .buttonStyle(.borderedProminent)
             Button("Törlés", role: .destructive) {
-                guard vm.isTypedTextCorrect() else { return }
-                vm.delete(publication)
+                guard isTypedTextCorrect() else { return }
+                delete(publication)
             }
         } message: { publication in
-            Text("Valóban törölni akarod a\(vm.isStartingWithVowel(publication.name) ? "z" : "") \(publication.name) nevű kiadványt? Ez a művelet törli az összes kapcsolódó adatot, és nem vonható vissza, épp ezért, kérlek gépeld be törölni kívánt kiadvány nevét!")
+            Text("Valóban törölni akarod a\(publication.name.isStartingWithVowel() ? "z" : "") \(publication.name) nevű kiadványt? Ez a művelet törli az összes kapcsolódó adatot, és nem vonható vissza, épp ezért, kérlek gépeld be törölni kívánt kiadvány nevét!")
         }
+    }
+    
+    func delete(_ publication: Publication) {
+        withAnimation { $publications.remove(publication) }
+    }
+    
+    func add(publication: Publication) {
+        $publications.append(publication)
+    }
+    
+    func deletePublication(_ publication: Publication? = nil) {
+        guard let publicationToDelete = publication ?? selectedPublication else { return }
+        self.publicationToDelete = publicationToDelete
+        showingAlert = true
+    }
+    
+    func isTypedTextCorrect() -> Bool {
+        guard let publicationName = publicationToDelete?.name else { return false }
+        let typedName = typedPublicationName
+        typedPublicationName = ""
+        return typedName == publicationName
     }
 }
 

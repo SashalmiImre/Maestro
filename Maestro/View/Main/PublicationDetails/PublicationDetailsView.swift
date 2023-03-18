@@ -10,10 +10,10 @@ import RealmSwift
 
 struct PublicationDetailsView: View {
     @ObservedRealmObject var publication: Publication
-    
-    @State private var settingsGroupIsExpanded: Bool = true
-    @State private var deadlineListGroupIsExpanded: Bool = true
-    @State private var selectedDeadline: Deadline?
+
+    @State var settingsGroupIsExpanded: Bool = true
+    @State var deadlineListGroupIsExpanded: Bool = true
+    @State var selectedDeadline: Deadline? = nil
     
     var body: some View {
 #if os(macOS)
@@ -37,15 +37,14 @@ struct PublicationDetailsView: View {
             PublicationSettingsView(publication: publication)
                 .padding()
             
-            DeadlineListView(publication: self._publication)
+            DeadlineListView(publication: publication)
                 .padding()
             
-            ArticleListView(publication: self._publication)
+            ArticleListView(publication: publication)
                 .padding()
         }
     }
 }
-
 
 
 // MARK: - Preview

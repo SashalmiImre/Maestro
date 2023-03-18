@@ -10,16 +10,17 @@ import GridStack
 import RealmSwift
 
 struct LayoutEditorView: View {
-    @ObservedRealmObject var publication: Publication
-
+    @ObservedRealmObject var publication: Publication = Publication.publication1
+    
     var body: some View {
         GridStack(
             minCellWidth: 200,
             spacing: 0,
             numItems: publication.endPageNumber / 2 + 1,
             alignment: .leading) { (index, cellWidth) in
-                    pagePair(index: index)
+                pagePair(index: index)
             }
+        
     }
     
     @ViewBuilder
@@ -27,9 +28,11 @@ struct LayoutEditorView: View {
         let lowerPageIndex = index * 2
         let upperPageIndex = lowerPageIndex + 1
         HStack(spacing: 0) {
-            PageView(number: lowerPageIndex,
+            PageView(publication: Publication.publication1,
+                     pageNumber: lowerPageIndex,
                      isDummy: lowerPageIndex < publication.startPageNumber)
-            PageView(number: upperPageIndex,
+            PageView(publication: Publication.publication1,
+                     pageNumber: upperPageIndex,
                      isDummy: upperPageIndex > publication.endPageNumber)
         }
     }

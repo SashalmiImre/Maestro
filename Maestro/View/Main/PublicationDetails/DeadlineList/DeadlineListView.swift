@@ -9,17 +9,18 @@ import SwiftUI
 import RealmSwift
 
 struct DeadlineListView: View {
-    private var vm: DeadlineListViewModel
+    @ObservedRealmObject var publication: Publication
+    @State var isExpanded: Bool = true
     
     var body: some View {
-        DisclosureGroup("Leadási határidők", isExpanded: vm.$isExpanded) {
-            ForEach(vm.$publication.deadlines, id: \.self) { $deadline in
+        DisclosureGroup("Leadási határidők", isExpanded: $isExpanded) {
+            ForEach($publication.deadlines, id: \.self) { $deadline in
                 DeadlineListRowView(deadline: $deadline)
                     .transition(.scale)
                     .rowActions(edge: .leading) {
                         Button {
                             withAnimation {
-                                vm.delete(deadline: deadline)
+                                delete(deadline: deadline)
                             }
                         } label: {
                             Image(systemName: "trash.circle.fill")
@@ -35,7 +36,7 @@ struct DeadlineListView: View {
             
             Button {
                 withAnimation {
-                    vm.$publication.deadlines.append(Deadline())
+                    $publication.deadlines.append(Deadline())
                 }
             } label: {
                 HStack {
@@ -51,19 +52,20 @@ struct DeadlineListView: View {
         .disclosureGroupStyle(SectionDisclosureGroupStyle())
     }
     
-    init(publication: ObservedRealmObject<Publication>) {
-        self.vm = DeadlineListViewModel(publication: publication)
+    func delete(deadline: Deadline) {
+        guard let index = publication.deadlines.index(of: deadline) else { return }
+        $publication.deadlines.remove(at: index)
     }
 }
 
 struct DeadlineList_Previews: PreviewProvider {
     static var previews: some View {
-        DeadlineListView(publication: ObservedRealmObject<Publication>(wrappedValue: Publication.publication1))
+        DeadlineListView(publication: Publication.publication1)
             .padding()
             .previewDevice(PreviewDevice(rawValue: "Mac"))
             .previewDisplayName("DeadlineList Mac")
         
-        DeadlineListView(publication: ObservedRealmObject<Publication>(wrappedValue: Publication.publication1))
+        DeadlineListView(publication: Publication.publication1)
             .padding()
             .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
             .previewDisplayName("DeadlineList iOS")

@@ -12,7 +12,10 @@ import Combine
 struct RealmView<Login, Connect, Content, Progress, Error>: View
 where Login: View, Connect: View, Content: View, Progress: View, Error: View {
     
-    private var viewModel = RealmView.RealmViewModel()
+    @AutoOpen(appId: RealmManager.appId, timeout: 4000) var autoOpen
+    var subscriptions: Set<AnyCancellable> = .init()
+    @State var realmErrorMessage: String?
+    
     private var login:    () -> Login
     private var connect:  () -> Connect
     private var content:  () -> Content
@@ -36,17 +39,17 @@ where Login: View, Connect: View, Content: View, Progress: View, Error: View {
             } else {
                 viewSelection
             }
-            Text(viewModel.realmErrorMessage ?? "")
+            Text(realmErrorMessage ?? "")
                 .padding()
                 .onReceive(realmManager.errorMessage) { message in
-                    viewModel.realmErrorMessage = message
+                    realmErrorMessage = message
                 }
         }
     }
     
     @ViewBuilder
     private var viewSelection: some View {
-        switch viewModel.autoOpen {
+        switch autoOpen {
             
         case .connecting:
             connect()
@@ -79,17 +82,11 @@ where Login: View, Connect: View, Content: View, Progress: View, Error: View {
         self.content  = content
         self.progress = progress
         self.error    = error
-        
-//        realmManager.errorMessage.sink { error in
-//
-//        } receiveValue: { errorMessage in
-//            viewModel.realmErrorMessage = errorMessage
-//        }
-//        .store(in: &self.viewModel.subscriptions)
-
     }
 }
 
+
+// MARK: - Previews
 
 struct RealmView_macOS_Previews: PreviewProvider {
 

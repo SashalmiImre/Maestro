@@ -9,11 +9,17 @@ import SwiftUI
 import RealmSwift
 
 struct ArticleListView: View {
-    private var vm: ArticleListViewModel
+    @ObservedRealmObject var publication: Publication
+
+    @State var isExpanded: Bool = true
+    @State var showingAlert: Bool = false
+    @State var selectedArticle: Article?
+    @State var articleToDelete: Article?
+    @State var typedArticleName: String = ""
     
     var body: some View {
-        DisclosureGroup("Cikkek", isExpanded: vm.$isExpanded) {
-            ForEach(vm.$publication.articles, id: \.self) { (article: Binding<Article>) in
+        DisclosureGroup("Cikkek", isExpanded: $isExpanded) {
+            ForEach($publication.articles, id: \.self) { (article: Binding<Article>) in
 #if os(macOS)
                 ArticleListItemView(article: article)
                     .transition(.scale)
@@ -45,23 +51,20 @@ struct ArticleListView: View {
         }
         .disclosureGroupStyle(SectionDisclosureGroupStyle())
         .alert("Cikk törlésének megerősítése",
-               isPresented: vm.$showingAlert,
-               presenting: vm.articleToDelete) { article in
-            TextField(article.name, text: vm.$typedArticleName)
+               isPresented: $showingAlert,
+               presenting: articleToDelete) { article in
+            TextField(article.name, text: $typedArticleName)
             Button("Elvetés", role: .cancel, action: {})
                 .buttonStyle(.borderedProminent)
             Button("Törlés", role: .destructive) {
-                guard vm.isTypedTextCorrect() else { return }
-                vm.delete(article)
+                guard isTypedTextCorrect() else { return }
+                delete(article)
             }
         } message: { article in
-            Text("Valóban törölni akarod a\(vm.isStartingWithVowel(article.name) ? "z" : "") \(article.name) nevű cikket? Ez a művelet törli az összes kapcsolódó adatot, és nem vonható vissza, épp ezért, kérlek gépeld be törölni kívánt kiadvány nevét!")
+            Text("Valóban törölni akarod a\(article.name.isStartingWithVowel() ? "z" : "") \(article.name) nevű cikket? Ez a művelet törli az összes kapcsolódó adatot, és nem vonható vissza, épp ezért, kérlek gépeld be törölni kívánt kiadvány nevét!")
         }
     }
-    
-    init(publication: ObservedRealmObject<Publication>) {
-        self.vm = ArticleListViewModel(publication: publication)
-    }
+
     
     
     // MARK: - Buttons
@@ -69,7 +72,7 @@ struct ArticleListView: View {
     @ViewBuilder
     private func deleteButton(target: Article) -> some View {
         Button {
-            vm.deleteArticle(target)
+            deleteArticle(target)
         } label: {
             Image(systemName: "trash.circle.fill")
                 .resizable()
@@ -99,7 +102,7 @@ struct ArticleListView: View {
     private func appendButton() -> some View {
         Button {
             withAnimation {
-                vm.$publication.articles.append(Article())
+                $publication.articles.append(Article())
             }
         } label: {
             HStack {
@@ -112,6 +115,30 @@ struct ArticleListView: View {
         }
         .buttonStyle(.plain)
     }
+    
+    func add(article: Article) {
+        $publication.articles.append(article)
+    }
+    
+    func deleteArticle(_ article: Article? = nil) {
+        guard let articleToDelete = article ?? selectedArticle else { return }
+        self.articleToDelete = articleToDelete
+        showingAlert = true
+    }
+    
+    func delete(_ article: Article) {
+        guard let index = publication.articles.firstIndex(of: article) else { return }
+        withAnimation {
+            $publication.articles.remove(at: index)
+        }
+    }
+    
+    func isTypedTextCorrect() -> Bool {
+        guard let articleName = articleToDelete?.name else { return false }
+        let typedName = typedArticleName
+        typedArticleName = ""
+        return typedName == articleName
+    }
 }
 
 
@@ -119,12 +146,12 @@ struct ArticleListView: View {
 
 struct ArticleListView_Previews: PreviewProvider {
     static var previews: some View {
-        ArticleListView(publication: ObservedRealmObject<Publication>(wrappedValue: Publication.publication1))
+        ArticleListView(publication: Publication.publication1)
             .padding()
             .previewDevice(PreviewDevice(rawValue: "Mac"))
             .previewDisplayName("ArticleList Mac")
         
-        ArticleListView(publication: ObservedRealmObject<Publication>(wrappedValue: Publication.publication1))
+        ArticleListView(publication: Publication.publication1)
             .padding()
             .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
             .previewDisplayName("ArticleList iOS")

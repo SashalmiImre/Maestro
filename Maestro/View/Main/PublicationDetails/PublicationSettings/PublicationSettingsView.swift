@@ -47,6 +47,9 @@ struct PublicationSettingsView: View {
     }
 }
 
+
+// MARK: - Previews
+
 struct PublicationSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         PublicationSettingsView(publication: Publication.publication1)

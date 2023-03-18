@@ -9,5 +9,5 @@ import Foundation
 import RealmSwift
 
 class Advertising: PageReservation {
-    
+    @Persisted(originProperty: "advertisements") var publication: LinkingObjects<Publication>
 }

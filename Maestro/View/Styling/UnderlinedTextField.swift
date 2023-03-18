@@ -11,14 +11,7 @@ struct UnderlinedTextField<F, V>: View where F: ParseableFormatStyle, F.FormatIn
     @Binding var value: V
     private  var prompt: String
     private  var formatter: F
-    
-    init(value: Binding<V>, prompt: String, format: F) {
-        self._value = value
-        self.prompt = prompt
-        self.formatter = format
-    }
 
-    
     var body: some View {
         let text: Binding<String> = Binding(get: { self.formatter.format(self.value) },
                                             set: { self.value = try! self.formatter.parseStrategy.parse($0) })
@@ -27,8 +20,16 @@ struct UnderlinedTextField<F, V>: View where F: ParseableFormatStyle, F.FormatIn
             .textFieldStyle(.plain)
             .underlinedControl(prompt: prompt, isEmpty: text.wrappedValue.isEmpty)
     }
+    
+    init(value: Binding<V>, prompt: String, format: F) {
+        self._value = value
+        self.prompt = prompt
+        self.formatter = format
+    }
 }
 
+
+// MARK: - Previews
 
 struct UnderlinedTextField_Previews: PreviewProvider {
     
