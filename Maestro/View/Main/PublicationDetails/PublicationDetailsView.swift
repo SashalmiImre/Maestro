@@ -11,9 +11,7 @@ import RealmSwift
 struct PublicationDetailsView: View {
     @ObservedRealmObject var publication: Publication
 
-    @State var settingsGroupIsExpanded: Bool = true
-    @State var deadlineListGroupIsExpanded: Bool = true
-    @State var selectedDeadline: Deadline? = nil
+    @State private var settingsGroupIsExpanded: Bool = true
     
     var body: some View {
 #if os(macOS)

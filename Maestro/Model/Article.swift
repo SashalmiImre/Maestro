@@ -15,11 +15,10 @@ class Article: PageReservation {
 
 // MARK: - For preview
 
-#if DEBUG
 extension Article {
     static var article1: Article {
         let article = Article(value: PageReservation.pageReservation1)
+        article.name = "Teszt article"
         return article
     }
 }
-#endif

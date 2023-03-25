@@ -14,12 +14,12 @@ struct ArticleListView: View {
     @State var isExpanded: Bool = true
     @State var showingAlert: Bool = false
     @State var selectedArticle: Article?
-    @State var articleToDelete: Article?
-    @State var typedArticleName: String = ""
+    @State var textToConfirmation: String = ""
+    
     
     var body: some View {
         DisclosureGroup("Cikkek", isExpanded: $isExpanded) {
-            ForEach($publication.articles, id: \.self) { (article: Binding<Article>) in
+            ForEach($publication.articles, id: \.self) { article in
 #if os(macOS)
                 ArticleListItemView(article: article)
                     .transition(.scale)
@@ -29,7 +29,6 @@ struct ArticleListView: View {
                     .rowActions {
                         validateButton(target: article.wrappedValue)
                     }
-                
 #elseif os(iOS)
                 NavigationLink {
                     ArticleDetailsView()
@@ -43,22 +42,21 @@ struct ArticleListView: View {
                 .rowActions {
                     validateButton(target: article.wrappedValue)
                 }
-                
 #endif
             }
-            
             appendButton()
         }
         .disclosureGroupStyle(SectionDisclosureGroupStyle())
+        
         .alert("Cikk törlésének megerősítése",
                isPresented: $showingAlert,
-               presenting: articleToDelete) { article in
-            TextField(article.name, text: $typedArticleName)
-            Button("Elvetés", role: .cancel, action: {})
+               presenting: selectedArticle) { article in
+            TextField(article.name, text: $textToConfirmation)
+            Button("Elvetés", role: .cancel) { }
                 .buttonStyle(.borderedProminent)
             Button("Törlés", role: .destructive) {
                 guard isTypedTextCorrect() else { return }
-                delete(article)
+                delete(article: article)
             }
         } message: { article in
             Text("Valóban törölni akarod a\(article.name.isStartingWithVowel() ? "z" : "") \(article.name) nevű cikket? Ez a művelet törli az összes kapcsolódó adatot, és nem vonható vissza, épp ezért, kérlek gépeld be törölni kívánt kiadvány nevét!")
@@ -66,13 +64,14 @@ struct ArticleListView: View {
     }
 
     
-    
     // MARK: - Buttons
     
     @ViewBuilder
     private func deleteButton(target: Article) -> some View {
         Button {
-            deleteArticle(target)
+            selectedArticle = target
+            showingAlert = true
+            textToConfirmation = ""
         } label: {
             Image(systemName: "trash.circle.fill")
                 .resizable()
@@ -97,13 +96,10 @@ struct ArticleListView: View {
         .buttonStyle(.plain)
     }
     
-    
     @ViewBuilder
     private func appendButton() -> some View {
         Button {
-            withAnimation {
-                $publication.articles.append(Article())
-            }
+                add(article: Article())
         } label: {
             HStack {
                 Image(systemName: "plus.circle.fill")
@@ -116,28 +112,21 @@ struct ArticleListView: View {
         .buttonStyle(.plain)
     }
     
-    func add(article: Article) {
-        $publication.articles.append(article)
+    
+    // MARK: - Functions
+    
+    private func add(article: Article) {
+        withAnimation { $publication.articles.append(article) }
     }
     
-    func deleteArticle(_ article: Article? = nil) {
-        guard let articleToDelete = article ?? selectedArticle else { return }
-        self.articleToDelete = articleToDelete
-        showingAlert = true
-    }
-    
-    func delete(_ article: Article) {
+    private func delete(article: Article) {
         guard let index = publication.articles.firstIndex(of: article) else { return }
-        withAnimation {
-            $publication.articles.remove(at: index)
-        }
+        withAnimation { $publication.articles.remove(at: index) }
     }
     
-    func isTypedTextCorrect() -> Bool {
-        guard let articleName = articleToDelete?.name else { return false }
-        let typedName = typedArticleName
-        typedArticleName = ""
-        return typedName == articleName
+    private func isTypedTextCorrect() -> Bool {
+        guard let articleName = selectedArticle?.name else { return false }
+        return textToConfirmation == articleName
     }
 }
 

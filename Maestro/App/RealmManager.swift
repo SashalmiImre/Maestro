@@ -52,16 +52,16 @@ class RealmManager {
     // MARK: - Setting for user
     
     private func realmForUser() {
-#if DEBUG
-        Realm.Configuration.defaultConfiguration.deleteRealmIfMigrationNeeded = true
-        realm = try! Realm()
-        return
-#else
+////#if DEBUG
+//        Realm.Configuration.defaultConfiguration.deleteRealmIfMigrationNeeded = true
+//        realm = try! Realm()
+//        return
+////#else
         guard let user = application.currentUser else { return }
         application.syncManager.errorHandler = syncErrorHandler
         Realm.Configuration.defaultConfiguration = configuration(forUser: user)
         start()
-#endif
+//#endif
     }
     
     private func configuration(forUser user: User) -> Realm.Configuration {
@@ -107,7 +107,7 @@ class RealmManager {
         }
         switch syncError.code {
         case .clientResetError:
-            if let (path, clientResetToken) = syncError.clientResetInfo() {
+            if let (_ /* path */, clientResetToken) = syncError.clientResetInfo() {
                 backup()
                 stop()
                 SyncSession.immediatelyHandleError(clientResetToken, syncManager: application.syncManager)
@@ -130,6 +130,9 @@ class RealmManager {
             break
             
         case .writeRejected:
+            break
+            
+        case .invalidFlexibleSyncSubscriptions:
             break
             
         @unknown default:

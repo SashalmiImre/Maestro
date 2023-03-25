@@ -74,7 +74,7 @@ extension View {
 
 struct RowActions_Previews: PreviewProvider {
     static var previews: some View {
-        DeadlineListRowView(deadline: .constant(Deadline()))
+        DeadlineListItemView(deadline: DeadlineProjection(projecting: Deadline()))
             .rowActions {
                 Button {
                     
@@ -103,7 +103,7 @@ struct RowActions_Previews: PreviewProvider {
             .previewDevice(PreviewDevice(rawValue: "Mac"))
             .previewDisplayName("RowActions Mac")
         
-        DeadlineListRowView(deadline: .constant(Deadline()))
+        DeadlineListItemView(deadline: DeadlineProjection(projecting: Deadline()))
             .rowActions {
                 Button {
                     

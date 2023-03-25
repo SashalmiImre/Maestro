@@ -30,7 +30,6 @@ class PageReservation: EmbeddedObject {
 
 // MARK: - For preview
 
-#if DEBUG
 extension PageReservation {
     static var pageReservation1: PageReservation {
         let pageReservation = PageReservation()
@@ -40,4 +39,3 @@ extension PageReservation {
         return pageReservation
     }
 }
-#endif

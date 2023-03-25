@@ -33,7 +33,6 @@ class Publication: Object, ObjectKeyIdentifiable {
 
 // MARK: - For preview
 
-#if DEBUG
 extension Publication {
     static var publication1: Publication {
         let publication = Publication()
@@ -62,4 +61,3 @@ extension Publication {
         return publication
     }
 }
-#endif

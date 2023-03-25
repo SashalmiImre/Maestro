@@ -22,7 +22,7 @@ struct ArticleListItemView: View {
             VStack(alignment: .leading) {
                 Text(article.name)
                     .font(.headline)
-                Text(article.description)
+                Text(article.mode.rawValue)
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
