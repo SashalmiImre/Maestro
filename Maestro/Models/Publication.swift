@@ -75,90 +75,70 @@ class Publication {
             article.pages.map { (article.name, $0.key, $0.value) }
         }.sorted { $0.1 < $1.1 }
         
-        // Megszámoljuk, hogy melyik oldalszám hányszor fordul elő
+        // Oldalszámok gyakorisága
         var pageNumberFrequency: [Int: [(String, PDFDocument)]] = [:]
         for (articleName, pageNumber, pdfDocument) in allPages {
             pageNumberFrequency[pageNumber, default: []].append((articleName, pdfDocument))
         }
         
-        // Szétválasztjuk az ütköző és nem ütköző oldalakat
+        // Különválasztjuk az ütköző és nem ütköző oldalakat
         let conflictingPages = pageNumberFrequency.filter { $0.value.count > 1 }
         let nonConflictingPages = pageNumberFrequency.filter { $0.value.count == 1 }
         
-        // Az ütköző oldalakat cikkek szerint csoportosítjuk
-        var conflictingArticleGroups: [[String: [(Int, PDFDocument)]]] = []
-        for (pageNumber, articles) in conflictingPages {
-            var articlePages: [String: [(Int, PDFDocument)]] = [:]
-            for (articleName, pdfDocument) in articles {
-                articlePages[articleName, default: []].append((pageNumber, pdfDocument))
+        // Ha nincs ütközés, csak egy layout van
+        if conflictingPages.isEmpty {
+            var layout = Layout()
+            for (pageNumber, articles) in nonConflictingPages {
+                let (articleName, pdfDocument) = articles[0]
+                layout.add(articleName: articleName, pageNumber: pageNumber, pdfDocument: pdfDocument)
             }
-            conflictingArticleGroups.append(articlePages)
+            return [layout]
         }
         
-        // Generáljuk a különböző layout variációkat
-        var generatedLayouts: [Layout] = []
-        let variations = generateVariations(from: conflictingArticleGroups)
+        // Ütköző oldalak csoportosítása oldalszám szerint
+        var conflicts: [Int: [(String, PDFDocument)]] = [:]
+        for (pageNumber, articles) in conflictingPages {
+            conflicts[pageNumber] = articles
+        }
         
-        // Minden variációhoz létrehozunk egy layoutot
-        for variation in variations {
+        // Generáljuk a lehetséges választásokat minden ütköző oldalszámhoz
+        var layoutChoices: [[Int: (String, PDFDocument)]] = [[:]]
+        
+        for (pageNumber, articles) in conflicts {
+            var newChoices: [[Int: (String, PDFDocument)]] = []
+            
+            for choice in layoutChoices {
+                for (articleName, pdfDocument) in articles {
+                    var newChoice = choice
+                    newChoice[pageNumber] = (articleName, pdfDocument)
+                    newChoices.append(newChoice)
+                }
+            }
+            
+            layoutChoices = newChoices
+        }
+        
+        // Generáljuk a layoutokat a választások alapján
+        var layouts: [Layout] = []
+        
+        for choices in layoutChoices {
             var layout = Layout()
             
-            // A nem ütköző oldalakat minden layoutba ugyanúgy tesszük bele
+            // Nem ütköző oldalak hozzáadása (minden layoutban ugyanaz)
             for (pageNumber, articles) in nonConflictingPages {
                 let (articleName, pdfDocument) = articles[0]
                 layout.add(articleName: articleName, pageNumber: pageNumber, pdfDocument: pdfDocument)
             }
             
-            // Az ütköző oldalakat a variáció szerint adjuk hozzá
-            for pages in variation {
-                for (articleName, pageInfos) in pages {
-                    for (pageNumber, pdfDocument) in pageInfos {
-                        layout.add(articleName: articleName, pageNumber: pageNumber, pdfDocument: pdfDocument)
-                    }
-                }
+            // Ütköző oldalak hozzáadása a választások szerint
+            for (pageNumber, articleInfo) in choices {
+                let (articleName, pdfDocument) = articleInfo
+                layout.add(articleName: articleName, pageNumber: pageNumber, pdfDocument: pdfDocument)
             }
             
-            generatedLayouts.append(layout)
+            layouts.append(layout)
         }
         
-        return generatedLayouts
-    }
-    
-    /// Generálja az ütköző oldalak különböző variációit
-    /// - Parameter groups: Az ütköző oldalak csoportjai
-    /// - Returns: A lehetséges variációk tömbje
-    private func generateVariations(from groups: [[String: [(Int, PDFDocument)]]]) -> [[[String: [(Int, PDFDocument)]]]] {
-        guard !groups.isEmpty else { return [] }
-        
-        // Kezdetben csak az első csoport egy variációja van
-        var variations: [[[String: [(Int, PDFDocument)]]]] = [[groups[0]]]
-        
-        // Minden további csoporthoz generáljuk az összes lehetséges kombinációt
-        for i in 1..<groups.count {
-            let currentGroup = groups[i]
-            var newVariations: [[[String: [(Int, PDFDocument)]]]] = []
-            
-            for variation in variations {
-                // Az aktuális csoport minden lehetséges sorrendjét hozzáadjuk
-                let articleNames = Array(currentGroup.keys)
-                let permutations = articleNames.permutations()
-                
-                for permutation in permutations {
-                    var newVariation = variation
-                    var newGroup: [String: [(Int, PDFDocument)]] = [:]
-                    
-                    for articleName in permutation {
-                        newGroup[articleName] = currentGroup[articleName]
-                    }
-                    
-                    newVariation.append(newGroup)
-                    newVariations.append(newVariation)
-                }
-            }
-            
-            variations = newVariations
-        }
-        
-        return variations
+        return layouts
     }
 }
