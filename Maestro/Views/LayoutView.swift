@@ -10,16 +10,14 @@ struct LayoutView: View {
         let rightPage: Layout.Page?
         
         var body: some View {
-            HStack(spacing: 0) {
+            HStack(spacing: 1) {
                 // Bal oldal
                 PageView(page: leftPage)
-                    .scrollDisabled(true)
                 
                 // Jobb oldal
                 PageView(page: rightPage)
-                    .scrollDisabled(true)
             }
-            .frame(height: 276)  // Fix magasság az oldalpároknak
+            .frame(height: 200)  // Fix magasság az oldalpároknak
             .background(Color.white)
             .cornerRadius(4)
             .shadow(radius: 2)
@@ -53,7 +51,7 @@ struct LayoutView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 // Oldalak csoportosítása soronként (5 pár oldalanként)
-                ForEach(0..<Int(ceil(Double(layout.pageCount) / 10)), id: \.self) { rowIndex in
+                ForEach(0..<Int(ceil(Double(layout.pageCount + 1) / 10)), id: \.self) { rowIndex in
                     HStack(spacing: 10) {
                         // Egy sorban 5 oldalpár
                         ForEach(0..<5, id: \.self) { pairIndex in
@@ -61,8 +59,8 @@ struct LayoutView: View {
                             let pages = layout.layoutPages
                             
                             PagePairView(
-                                leftPage: startIndex < pages.count ? pages[startIndex] : nil,
-                                rightPage: startIndex + 1 < pages.count ? pages[startIndex + 1] : nil
+                                leftPage: (startIndex - 1) >= 0 && (startIndex - 1) < pages.count ? pages[startIndex - 1] : nil,
+                                rightPage: startIndex < pages.count ? pages[startIndex] : nil
                             )
                         }
                     }
