@@ -6,101 +6,75 @@
 //
 
 import SwiftUI
-import PDFKit
 
 struct ContentView: View {
-    @State private var folderPath: String?
-    @State private var isProcessing = false
-    @State private var layouts: [LayoutVersion] = []
-    @State private var error: Error?
-    @State private var selectedLayout: LayoutVersion?
-    @State private var isDatabaseBuilding = false
+    @State private var publication: Publication?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     
     var body: some View {
-        VStack {
-            if let error = error {
-                ErrorView(error: error)
-            } else if isDatabaseBuilding {
-                ProgressView("Adatbázis felépítése...")
-                    .progressViewStyle(.circular)
-            } else if !layouts.isEmpty {
-                TabView(selection: $selectedLayout) {
-                    ForEach(layouts) { layout in
-                        LayoutPreviewView(layout: layout)
-                            .tabItem {
-                                Text("Verzió \(layout.label)")
-                            }
-                            .tag(layout as LayoutVersion?)
-                    }
-                }
-                .frame(minWidth: 800, minHeight: 600)
-                
-                if let layout = selectedLayout {
-                    Button("Exportálás") {
-                        Task {
-                            await exportLayout(layout)
-                        }
-                    }
-                    .disabled(isProcessing)
-                }
-            } else if let path = folderPath {
-                ProcessingView(folderPath: path, isProcessing: $isProcessing)
-                    .task {
-                        await processFolder(path)
-                    }
+        Group {
+            if let publication = publication {
+                // Ha van érvényes publikáció, megjelenítjük a layoutokat
+                LayoutsView(layouts: publication.getLayouts())
             } else {
-                DropZoneView(folderPath: $folderPath)
-            }
-        }
-        .padding()
-        .onChange(of: folderPath) { oldValue, newValue in
-            if let path = newValue {
-                Task {
-                    await buildDatabase(for: path)
+                // Ha nincs publikáció, várjuk a drag & drop-ot
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(style: StrokeStyle(lineWidth: 2, dash: [5]))
+                        .foregroundColor(.gray)
+                        .frame(width: 400, height: 200)
+                    
+                    VStack(spacing: 16) {
+                        if isLoading {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                        }
+                        
+                        Text(errorMessage ?? "Húzd ide a publikáció mappáját")
+                            .foregroundColor(errorMessage != nil ? .red : .primary)
+                    }
+                }
+                .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                    handleDrop(providers: providers)
+                    return true
                 }
             }
         }
+        .frame(minWidth: 800, minHeight: 600)
     }
     
-    private func buildDatabase(for path: String) async {
-        isDatabaseBuilding = true
-        do {
-            try await DatabaseService.buildDatabase(for: URL(filePath: path))
-        } catch {
-            self.error = error
-        }
-        isDatabaseBuilding = false
-    }
-    
-    private func processFolder(_ path: String) async {
-        isProcessing = true
-        do {
-            let documents = try await PDFProcessorService.findPDFFiles(
-                in: URL(filePath: path)
-            )
-            layouts = LayoutManager.createLayouts(from: documents)
-            selectedLayout = layouts.first
-        } catch {
-            self.error = error
-        }
-        isProcessing = false
-    }
-    
-    private func exportLayout(_ layout: LayoutVersion) async {
-        isProcessing = true
-        do {
-            let savePanel = NSSavePanel()
-            savePanel.allowedContentTypes = [.jpeg]
-            savePanel.nameFieldStringValue = "layout_\(layout.label).jpg"
-            
-            if await savePanel.beginSheetModal(for: NSApp.keyWindow!) == .OK,
-               let url = savePanel.url {
-                try await ExportService.exportLayout(layout, to: url)
+    private func handleDrop(providers: [NSItemProvider]) {
+        guard let provider = providers.first else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.errorMessage = "Hiba: \(error.localizedDescription)"
+                    self.isLoading = false
+                    return
+                }
+                
+                guard let data = item as? Data,
+                      let url = URL(dataRepresentation: data, relativeTo: nil) else {
+                    self.errorMessage = "Érvénytelen URL"
+                    self.isLoading = false
+                    return
+                }
+                
+                // Publikáció létrehozása
+                if let publication = Publication(folderURL: url) {
+                    self.publication = publication
+                } else {
+                    self.errorMessage = "Nem sikerült létrehozni a publikációt"
+                }
+                
+                self.isLoading = false
             }
-        } catch {
-            self.error = error
         }
-        isProcessing = false
     }
 }
 

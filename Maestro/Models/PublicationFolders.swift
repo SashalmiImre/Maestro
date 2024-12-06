@@ -2,6 +2,7 @@ import Foundation
 
 struct PublicationFolders {
     let baseFolder: URL
+    let pdfFolder: URL
     let layoutFolder: URL
     let correctedFolder: URL
     let printableFolder: URL
@@ -11,16 +12,21 @@ struct PublicationFolders {
         self.baseFolder = baseFolder
         
         // Fix almappák létrehozása
-        self.layoutFolder = baseFolder.appendingPathComponent("__Tordelve")
-        self.correctedFolder = layoutFolder.appendingPathComponent("__Olvasva")
-        self.printableFolder = correctedFolder.appendingPathComponent("__Levilagithato")
-        self.printedFolder = correctedFolder.appendingPathComponent("__Levil")
+        self.layoutFolder = baseFolder.appendingPathComponent("__TORDELVE")
+        self.pdfFolder = baseFolder.appendingPathComponent("__PDF__")
+        self.correctedFolder = layoutFolder.appendingPathComponent("__OLVASVA")
+        self.printableFolder = correctedFolder.appendingPathComponent("__LEVILAGITHATO")
+        self.printedFolder = correctedFolder.appendingPathComponent("__LEVIL__")
         
         // Létrehozzuk a hiányzó mappákat
         let fileManager = FileManager.default
         
         if !fileManager.fileExists(atPath: layoutFolder.path) {
             try fileManager.createDirectory(at: layoutFolder, withIntermediateDirectories: true)
+        }
+        
+        if !fileManager.fileExists(atPath: pdfFolder.path) {
+            try fileManager.createDirectory(at: pdfFolder, withIntermediateDirectories: true)
         }
         
         if !fileManager.fileExists(atPath: correctedFolder.path) {
@@ -38,7 +44,7 @@ struct PublicationFolders {
     
     /// Visszaadja az összes rendszermappát
     var systemFolders: [URL] {
-        [baseFolder, layoutFolder, correctedFolder, printableFolder, printedFolder]
+        [pdfFolder, layoutFolder, correctedFolder, printableFolder, printedFolder]
     }
     
     /// Megkeresi az érvényes almappákat a base mappában

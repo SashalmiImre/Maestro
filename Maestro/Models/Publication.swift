@@ -8,7 +8,7 @@ class Publication {
     let name: String
     
     /// A publikációhoz tartozó cikkek
-    private var articles: [Article]
+    private var articles: [Article] = .init()
     
     /// A publikációhoz tartozó mappák struktúrája
     let folders: PublicationFolders
@@ -38,31 +38,33 @@ class Publication {
         }
         
         // Létrehozzuk a cikkeket az érvényes almappákból
-        var articles: [Article] = []
         for folder in validSubfolders {
-            if let inddFile = try? Self.findInDesignFile(in: folder),
-               let article = Article(inddFile: inddFile, searchFolders: folders.systemFolders) {
-                articles.append(article)
+            if let inddFiles = try? Self.findInDesignFile(in: folder) {
+                inddFiles.forEach { url in
+                    if let article = Article(inddFile: url, searchFolders: folders.systemFolders) {
+                        articles.append(article)
+                    }
+                }
             }
         }
         
         // Ha nincs egyetlen érvényes cikk sem, akkor nil-t adunk vissza
         guard !articles.isEmpty else { return nil }
-        self.articles = articles
     }
     
     /// Megkeresi az InDesign fájlt egy mappában
     /// - Parameter folderURL: A mappa URL-je
     /// - Returns: Az első talált InDesign fájl URL-je, vagy nil ha nincs ilyen
     /// - Throws: Fájlrendszer hibák esetén
-    private static func findInDesignFile(in folderURL: URL) throws -> URL? {
+    private static func findInDesignFile(in folderURL: URL) throws -> [URL]? {
         let contents = try FileManager.default.contentsOfDirectory(
             at: folderURL,
             includingPropertiesForKeys: [.isRegularFileKey],
             options: .skipsHiddenFiles
         )
         
-        return contents.first { $0.pathExtension.lowercased() == "indd" }
+        let result = contents.filter { $0.pathExtension.lowercased() == "indd" }
+        return result.isEmpty ? nil : result
     }
     
     /// Visszaadja a publikáció lehetséges layout variációit
