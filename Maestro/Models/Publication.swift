@@ -1,17 +1,25 @@
 import Foundation
+import PDFKit
 
 class Publication {
     let name: String
     private var articles: [Article]
-    private var layouts: [Layout]?
+    let folders: PublicationFolders
     
     init?(folderURL: URL) {
+        do {
+            self.folders = try PublicationFolders(baseFolder: folderURL)
+        } catch {
+            print("Hiba a publikáció mappáinak létrehozásakor: \(error)")
+            return nil
+        }
+        
         self.name = folderURL.lastPathComponent
         
         // Valid subfolderek keresése
         let validSubfolders: [URL]
         do {
-            validSubfolders = try Self.findValidSubfolders(in: folderURL)
+            validSubfolders = try folders.findValidSubfolders()
         } catch {
             print("Hiba a valid subfolderek keresése közben: \(error)")
             return nil
@@ -20,7 +28,8 @@ class Publication {
         // Article-ök létrehozása a valid subfolderekből
         var articles: [Article] = []
         for folder in validSubfolders {
-            if let article = Article(folderURL: folder) {
+            if let inddFile = try? Self.findInDesignFile(in: folder),
+               let article = Article(inddFile: inddFile, searchFolders: folders.systemFolders) {
                 articles.append(article)
             }
         }
@@ -30,38 +39,18 @@ class Publication {
         self.articles = articles
     }
     
-    private static func findValidSubfolders(in folderURL: URL) throws -> [URL] {
+    private static func findInDesignFile(in folderURL: URL) throws -> URL? {
         let contents = try FileManager.default.contentsOfDirectory(
             at: folderURL,
-            includingPropertiesForKeys: [.isDirectoryKey, .isHiddenKey, .tagNamesKey],
+            includingPropertiesForKeys: [.isRegularFileKey],
             options: .skipsHiddenFiles
         )
         
-        let nemKellPattern = #"^(?i)nemkell$"#
-        
-        return try contents.filter { folderURL in
-            let resourceValues = try folderURL.resourceValues(forKeys: [
-                .isDirectoryKey,
-                .isHiddenKey,
-                .tagNamesKey
-            ])
-            
-            let isDirectory = resourceValues.isDirectory ?? false
-            let isHidden = resourceValues.isHidden ?? false
-            let tags = resourceValues.tagNames ?? []
-            let hasGrayTag = tags.contains("Gray") || tags.contains("Grey")
-            let isNemKell = folderURL.lastPathComponent.matches(of: try! Regex(nemKellPattern)).count > 0
-            
-            return isDirectory && !isHidden && !hasGrayTag && !isNemKell
-        }
+        return contents.first { $0.pathExtension.lowercased() == "indd" }
     }
     
-    /// Visszaadja a publikáció layoutjait, szükség esetén generálja őket
+    /// Visszaadja a publikáció layoutjait
     func getLayouts() -> [Layout] {
-        if let existingLayouts = layouts {
-            return existingLayouts
-        }
-        
         // Összegyűjtjük az összes oldalt és megkeressük az ütközéseket
         let allPages = articles.flatMap { article in
             article.pages.map { (article.name, $0.key, $0.value) }
@@ -113,7 +102,6 @@ class Publication {
             generatedLayouts.append(layout)
         }
         
-        self.layouts = generatedLayouts
         return generatedLayouts
     }
     
