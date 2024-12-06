@@ -1,12 +1,23 @@
 import Foundation
 import PDFKit
+import Algorithms
 
+/// Egy publikáció reprezentációja, amely cikkeket tartalmaz és különböző layout variációkat tud generálni
 class Publication {
+    /// A publikáció neve (az alapmappa neve)
     let name: String
+    
+    /// A publikációhoz tartozó cikkek
     private var articles: [Article]
+    
+    /// A publikációhoz tartozó mappák struktúrája
     let folders: PublicationFolders
     
+    /// Inicializálja a publikációt egy adott mappa alapján
+    /// - Parameter folderURL: Az alapmappa URL-je
+    /// - Returns: `nil`, ha nem sikerül létrehozni a publikációt (nincs érvényes cikk vagy hibás mappastruktúra)
     init?(folderURL: URL) {
+        // Létrehozzuk a mappastruktúrát
         do {
             self.folders = try PublicationFolders(baseFolder: folderURL)
         } catch {
@@ -14,9 +25,10 @@ class Publication {
             return nil
         }
         
+        // A publikáció neve az alapmappa neve lesz
         self.name = folderURL.lastPathComponent
         
-        // Valid subfolderek keresése
+        // Megkeressük az érvényes almappákat
         let validSubfolders: [URL]
         do {
             validSubfolders = try folders.findValidSubfolders()
@@ -25,7 +37,7 @@ class Publication {
             return nil
         }
         
-        // Article-ök létrehozása a valid subfolderekből
+        // Létrehozzuk a cikkeket az érvényes almappákból
         var articles: [Article] = []
         for folder in validSubfolders {
             if let inddFile = try? Self.findInDesignFile(in: folder),
@@ -34,11 +46,15 @@ class Publication {
             }
         }
         
-        // Ha nincs egyetlen érvényes Article sem, akkor nil
+        // Ha nincs egyetlen érvényes cikk sem, akkor nil-t adunk vissza
         guard !articles.isEmpty else { return nil }
         self.articles = articles
     }
     
+    /// Megkeresi az InDesign fájlt egy mappában
+    /// - Parameter folderURL: A mappa URL-je
+    /// - Returns: Az első talált InDesign fájl URL-je, vagy nil ha nincs ilyen
+    /// - Throws: Fájlrendszer hibák esetén
     private static func findInDesignFile(in folderURL: URL) throws -> URL? {
         let contents = try FileManager.default.contentsOfDirectory(
             at: folderURL,
@@ -49,26 +65,26 @@ class Publication {
         return contents.first { $0.pathExtension.lowercased() == "indd" }
     }
     
-    /// Visszaadja a publikáció layoutjait
+    /// Visszaadja a publikáció lehetséges layout variációit
+    /// - Returns: A generált layoutok tömbje
     func getLayouts() -> [Layout] {
-        // Összegyűjtjük az összes oldalt és megkeressük az ütközéseket
+        // Összegyűjtjük az összes oldalt és rendezzük oldalszám szerint
         let allPages = articles.flatMap { article in
             article.pages.map { (article.name, $0.key, $0.value) }
         }.sorted { $0.1 < $1.1 }
         
-        // Oldalszámok gyakorisága
+        // Megszámoljuk, hogy melyik oldalszám hányszor fordul elő
         var pageNumberFrequency: [Int: [(String, PDFDocument)]] = [:]
         for (articleName, pageNumber, pdfDocument) in allPages {
             pageNumberFrequency[pageNumber, default: []].append((articleName, pdfDocument))
         }
         
-        // Különválasztjuk az ütköző és nem ütköző oldalakat
+        // Szétválasztjuk az ütköző és nem ütköző oldalakat
         let conflictingPages = pageNumberFrequency.filter { $0.value.count > 1 }
         let nonConflictingPages = pageNumberFrequency.filter { $0.value.count == 1 }
         
-        // Csoportosítjuk az ütköző oldalakat cikkek szerint
+        // Az ütköző oldalakat cikkek szerint csoportosítjuk
         var conflictingArticleGroups: [[String: [(Int, PDFDocument)]]] = []
-        
         for (pageNumber, articles) in conflictingPages {
             var articlePages: [String: [(Int, PDFDocument)]] = [:]
             for (articleName, pdfDocument) in articles {
@@ -81,16 +97,17 @@ class Publication {
         var generatedLayouts: [Layout] = []
         let variations = generateVariations(from: conflictingArticleGroups)
         
+        // Minden variációhoz létrehozunk egy layoutot
         for variation in variations {
             var layout = Layout()
             
-            // Először hozzáadjuk a nem ütköző oldalakat
+            // A nem ütköző oldalakat minden layoutba ugyanúgy tesszük bele
             for (pageNumber, articles) in nonConflictingPages {
                 let (articleName, pdfDocument) = articles[0]
                 layout.add(articleName: articleName, pageNumber: pageNumber, pdfDocument: pdfDocument)
             }
             
-            // Majd az ütköző oldalak aktuális variációját
+            // Az ütköző oldalakat a variáció szerint adjuk hozzá
             for pages in variation {
                 for (articleName, pageInfos) in pages {
                     for (pageNumber, pdfDocument) in pageInfos {
@@ -106,11 +123,15 @@ class Publication {
     }
     
     /// Generálja az ütköző oldalak különböző variációit
+    /// - Parameter groups: Az ütköző oldalak csoportjai
+    /// - Returns: A lehetséges variációk tömbje
     private func generateVariations(from groups: [[String: [(Int, PDFDocument)]]]) -> [[[String: [(Int, PDFDocument)]]]] {
         guard !groups.isEmpty else { return [] }
         
+        // Kezdetben csak az első csoport egy variációja van
         var variations: [[[String: [(Int, PDFDocument)]]]] = [[groups[0]]]
         
+        // Minden további csoporthoz generáljuk az összes lehetséges kombinációt
         for i in 1..<groups.count {
             let currentGroup = groups[i]
             var newVariations: [[[String: [(Int, PDFDocument)]]]] = []
