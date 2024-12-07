@@ -41,7 +41,7 @@ class Publication {
         for folder in validSubfolders {
             if let inddFiles = try? Self.findInDesignFile(in: folder) {
                 inddFiles.forEach { url in
-                    if let article = Article(inddFile: url, searchFolders: folders.systemFolders) {
+                    if let article = Article(inddFile: url, availablePDFs: folders.availablePDFs) {
                         articles.append(article)
                     }
                 }

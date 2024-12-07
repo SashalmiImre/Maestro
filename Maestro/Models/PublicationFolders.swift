@@ -7,6 +7,7 @@ struct PublicationFolders {
     let correctedFolder: URL
     let printableFolder: URL
     let printedFolder: URL
+    private(set) var availablePDFs: [URL] = []
     
     init(baseFolder: URL) throws {
         self.baseFolder = baseFolder
@@ -40,6 +41,9 @@ struct PublicationFolders {
         if !fileManager.fileExists(atPath: printedFolder.path) {
             try fileManager.createDirectory(at: printedFolder, withIntermediateDirectories: true)
         }
+        
+        // Megkeressük az összes PDF-et
+        try findAllPDFs()
     }
     
     /// Visszaadja az összes rendszermappát
@@ -75,5 +79,27 @@ struct PublicationFolders {
         
         // Hozzáadjuk a rendszermappákat is
         return validSubfolders + systemFolders
+    }
+    
+    /// Megkeresi az összes PDF fájlt az érvényes mappákban
+    private mutating func findAllPDFs() throws {
+        let validFolders = try findValidSubfolders()
+        var pdfs: [URL] = []
+        
+        for folder in validFolders {
+            if let enumerator = FileManager.default.enumerator(
+                at: folder,
+                includingPropertiesForKeys: [.isRegularFileKey],
+                options: .skipsHiddenFiles
+            ) {
+                while let fileURL = enumerator.nextObject() as? URL {
+                    if fileURL.pathExtension.lowercased() == "pdf" {
+                        pdfs.append(fileURL)
+                    }
+                }
+            }
+        }
+        
+        self.availablePDFs = pdfs
     }
 } 
