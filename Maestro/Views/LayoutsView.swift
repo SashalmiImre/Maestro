@@ -9,54 +9,13 @@ struct LayoutsView: View {
     }
     
     var body: some View {
-        VStack {
-            // Navigációs gombok és layout információ
-            HStack {
-                Button(action: viewModel.previousLayout) {
-                    Image(systemName: "chevron.left")
-                }
-                .disabled(!viewModel.hasPreviousLayout)
-                
-                Text("Layout \(viewModel.selectedLayoutIndex + 1)/\(viewModel.layoutCount)")
-                    .font(.headline)
-                
-                Button(action: viewModel.nextLayout) {
-                    Image(systemName: "chevron.right")
-                }
-                .disabled(!viewModel.hasNextLayout)
-            }
-            .padding()
-            
-            // Layout megjelenítése
-            if let selectedLayout = viewModel.selectedLayout {
-                ScrollView {
-                    LazyVStack(spacing: 20) {
-                        ForEach(1...viewModel.selectedLayoutPageCount, id: \.self) { pageNumber in
-                            VStack(alignment: .leading) {
-                                // Oldalszám és cikk neve
-                                if let articleName = viewModel.articleName(forPage: pageNumber) {
-                                    Text("\(pageNumber). oldal - \(articleName)")
-                                        .font(.headline)
-                                        .padding(.bottom, 5)
-                                }
-                                
-                                // PDF oldal megjelenítése
-                                if let pdfDocument = viewModel.pdfDocument(forPage: pageNumber) {
-                                    PDFKitView(document: pdfDocument, scale: 0.2)
-                                        .frame(height: 800)
-                                        .border(Color.gray, width: 1)
-                                } else {
-                                    Text("PDF nem található")
-                                        .foregroundColor(.red)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
+        TabView(selection: $viewModel.selectedLayoutIndex) {
+            ForEach(Array(viewModel.layouts.enumerated()), id: \.offset) { index, layout in
+                LayoutView(layout: layout)
+                    .tabItem {
+                        Text("Layout \(index + 1)")
                     }
-                }
-            } else {
-                Text("Nincs elérhető layout")
-                    .foregroundColor(.red)
+                    .tag(index)
             }
         }
         .navigationTitle("Layoutok")
@@ -67,22 +26,6 @@ struct LayoutsView: View {
         }
     }
 }
-//
-//// PDFKitView marad változatlan, ha már létezik
-//struct PDFKitView: NSViewRepresentable {
-//    let document: PDFDocument
-//    
-//    func makeNSView(context: Context) -> PDFView {
-//        let pdfView = PDFView()
-//        pdfView.document = document
-//        pdfView.autoScales = true
-//        return pdfView
-//    }
-//    
-//    func updateNSView(_ pdfView: PDFView, context: Context) {
-//        pdfView.document = document
-//    }
-//}
 
 //#Preview {
 //    LayoutsView(publication: .previewValue)
