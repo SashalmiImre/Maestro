@@ -16,7 +16,7 @@ struct ContentView: View {
         Group {
             if let publication = publication {
                 // Ha van érvényes publikáció, megjelenítjük a layoutokat
-                LayoutsView(layouts: publication.getLayouts())
+                LayoutsView(publication: publication)
             } else {
                 // Ha nincs publikáció, várjuk a drag & drop-ot
                 ZStack {
