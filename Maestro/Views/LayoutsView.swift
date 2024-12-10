@@ -11,7 +11,8 @@ struct LayoutsView: View {
     var body: some View {
         TabView(selection: $viewModel.selectedLayoutIndex) {
             ForEach(Array(viewModel.layouts.enumerated()), id: \.offset) { index, layout in
-                LayoutView(layout: layout)
+//                LayoutView(layout: layout)
+                DraggableLayoutView(layout: layout)
                     .tabItem {
                         Text("Layout \(index + 1)")
                     }
