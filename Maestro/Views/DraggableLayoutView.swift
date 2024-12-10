@@ -26,8 +26,18 @@ struct DraggableLayoutView: View {
         var pairs: [(leftNumber: Int, rightNumber: Int, left: Layout.Page?, right: Layout.Page?)] = []
         let sortedPages = layout.layoutPages.sorted { $0.pageNumber < $1.pageNumber }
         
+        // Debug: nézzük meg az összes oldal számát
+        print("Összes oldal: \(sortedPages.map { $0.pageNumber })")
+        
         // Meghatározzuk a legnagyobb oldalszámot
-        let maxPageNumber = sortedPages.map(\.pageNumber).max() ?? 0
+        let maxPageNumber = max(
+            sortedPages.map(\.pageNumber).max() ?? 0,
+            layout.pageCount  // Figyelembe vesszük a layout.pageCount-ot is
+        )
+        
+        // Debug: kiírjuk a maxPageNumber-t
+        print("Max oldalszám: \(maxPageNumber)")
+        
         if maxPageNumber < 1 { return pairs }
         
         // Az első oldal mindig jobbra kerül (1-es oldalszám)
@@ -50,6 +60,8 @@ struct DraggableLayoutView: View {
             currentPageNumber += 2
         }
         
+        // Debug: kiírjuk a párok számát
+        print("Párok száma: \(pairs.count)")
         return pairs
     }
     
@@ -161,7 +173,7 @@ struct DraggableLayoutView: View {
     var body: some View {
         ScrollView([.horizontal, .vertical]) {
             LazyVStack(spacing: 20, pinnedViews: []) {
-                ForEach(0..<Int(ceil(Double(layout.pageCount) / 10)), id: \.self) { rowIndex in
+                ForEach(0..<Int(ceil(Double(pagePairs.count) / 5)), id: \.self) { rowIndex in
                     HStack(spacing: 20) {
                         ForEach(0..<5, id: \.self) { pairIndex in
                             let pairOffset = rowIndex * 5 + pairIndex
