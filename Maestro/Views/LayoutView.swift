@@ -1,49 +1,13 @@
 import SwiftUI
 import PDFKit
 
-// PDFKitView definíciója
-struct PDFKitView: View {
-    let document: PDFDocument
-    let scale: CGFloat
+struct LayoutView: View {
+    @EnvironmentObject var publication: Publication
     
-    var body: some View {
-        PDFKitRepresentedView(document: document, scale: scale)
-            .allowsHitTesting(false)
-    }
-}
-
-// PDFKit wrapper
-struct PDFKitRepresentedView: NSViewRepresentable {
-    let document: PDFDocument
-    let scale: CGFloat
-    
-    func makeNSView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-        pdfView.document = document
-        pdfView.autoScales = true
-        pdfView.maxScaleFactor = 4.0
-        pdfView.minScaleFactor = 0.1
-        pdfView.scaleFactor = scale
-        
-        // Csak egy oldalt jelenítünk meg, és letiltjuk a görgetést
-        pdfView.displayMode = .singlePage
-        pdfView.displaysAsBook = false
-        pdfView.displayDirection = .vertical
-        
-        return pdfView
-    }
-    
-    func updateNSView(_ nsView: PDFView, context: Context) {
-        nsView.document = document
-        nsView.scaleFactor = scale
-    }
-}
-
-struct DraggableLayoutView: View {
     let layout: Layout
     let userDefinedMaxPage: Int?
     let isEditMode: Bool
-    private let pdfScale: CGFloat = 0.2
+    let pdfScale: CGFloat
     
     // Drag & Drop állapot kezelése
     @State private var draggedArticle: String? = nil
@@ -70,7 +34,7 @@ struct DraggableLayoutView: View {
     /// Kiszámítja az alapértelmezett oldalméretet a layout alapján
     private var defaultPageSize: CGSize {
         if let firstPage = layout.layoutPages.first?.pdfDocument.page(at: 0) {
-            let bounds = firstPage.bounds(for: .mediaBox)
+            let bounds = firstPage.bounds(for: .cropBox)
             return CGSize(width: bounds.width, height: bounds.height)
         }
         return CGSize(width: 595, height: 842)  // A4 alapértelmezett méret
@@ -132,74 +96,6 @@ struct DraggableLayoutView: View {
     
     // MARK: - Subviews
     
-    /// Üres oldal
-    private struct BlankPageView: View {
-        let scale: CGFloat
-        let defaultSize: CGSize
-        var body: some View {
-            Color.clear
-                .frame(width: defaultSize.width * scale, height: defaultSize.height * scale)
-        }
-    }
-    
-    /// Egy oldal megjelenítése drag & drop támogatással
-    private struct DraggablePageView: View {
-        let page: Layout.Page?
-        let scale: CGFloat
-        let defaultSize: CGSize
-        let isDragging: Bool
-        let onDragStarted: (Layout.Page) -> Void
-        let pageNumber: Int
-        let isEditMode: Bool
-        let maxPageNumber: Int
-        
-        var body: some View {
-            Group {
-                if let page = page {
-                    PDFKitView(document: page.pdfDocument, scale: scale)
-                        .frame(
-                            width: defaultSize.width * scale,
-                            height: defaultSize.height * scale
-                        )
-                        .background(Color.white)
-                        .cornerRadius(4)
-                        .shadow(radius: isDragging ? 8 : 2)
-                        .opacity(isDragging ? 0.7 : 1.0)
-                        .onTapGesture {
-                            if isEditMode {
-                                if isDragging {
-                                    // Ha a már kijelölt oldalra kattintunk, töröljük a kijelölést
-                                    onDragStarted(page)
-                                } else {
-                                    // Különben kijelöljük az oldalt
-                                    onDragStarted(page)
-                                }
-                            }
-                        }
-                        .overlay(
-                            isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear
-                        )
-                } else if pageNumber > 0 && pageNumber <= maxPageNumber {  // csak akkor jelenítjük meg az üres oldalt, ha nem nagyobb a maxPageNumber-nél
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(
-                            width: defaultSize.width * scale,
-                            height: defaultSize.height * scale
-                        )
-                        .overlay(
-                            Text("\(pageNumber)")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray.opacity(0.3))
-                        )
-                        .cornerRadius(4)
-                        .shadow(radius: 2)
-                }
-            }
-            .background(Color.white)
-            .frame(width: defaultSize.width * scale, height: defaultSize.height * scale)
-        }
-    }
-    
     /// Egy oldalpár megjelenítése
     private struct PagePairView: View {
         let leftNumber: Int
@@ -218,7 +114,7 @@ struct DraggableLayoutView: View {
                 HStack(spacing: 0) {
                     // Bal oldal
                     if leftNumber > 0 {
-                        DraggablePageView(
+                        PageView(
                             page: leftPage,
                             scale: scale,
                             defaultSize: defaultSize,
@@ -235,7 +131,7 @@ struct DraggableLayoutView: View {
                     
                     // Jobb oldal
                     if rightNumber <= maxPageNumber {
-                        DraggablePageView(
+                        PageView(
                             page: rightPage,
                             scale: scale,
                             defaultSize: defaultSize,
@@ -251,8 +147,6 @@ struct DraggableLayoutView: View {
                     }
                 }
                 .frame(width: defaultSize.width * scale * 2, height: defaultSize.height * scale)
-                .cornerRadius(4)
-                .shadow(radius: 2)
                 
                 // Oldalszámok külön sorban
                 HStack(spacing: 0) {
@@ -269,9 +163,82 @@ struct DraggableLayoutView: View {
                         .frame(width: defaultSize.width * scale, alignment: .trailing)
                         .padding(.trailing, 4)
                         .opacity(rightNumber > 0 ? 1 : 0)
-                    
                 }
             }
+        }
+    }
+    
+    /// Üres oldal
+    private struct BlankPageView: View {
+        let scale: CGFloat
+        let defaultSize: CGSize
+        var body: some View {
+            Color.clear
+                .frame(width: defaultSize.width * scale, height: defaultSize.height * scale)
+        }
+    }
+    
+    /// Egy oldal megjelenítése drag & drop támogatással
+    private struct PageView: View {
+        @EnvironmentObject var publication: Publication
+        
+        let page: Layout.Page?
+        let scale: CGFloat
+        let defaultSize: CGSize
+        let isDragging: Bool
+        let onDragStarted: (Layout.Page) -> Void
+        let pageNumber: Int
+        let isEditMode: Bool
+        let maxPageNumber: Int
+        
+        var body: some View {
+            Group {
+                if let page = page {
+                    LazyLoadingView(
+                        pdfPage: page.pdfDocument.page(at: 0)!,
+                        displayBox: .cropBox,
+                        scale: scale
+                    )
+                    .frame(
+                        width: defaultSize.width * scale,
+                        height: defaultSize.height * scale
+                    )
+                    .background(Color.white)
+                    .opacity(isDragging ? 0.7 : 1.0)
+                    .onTapGesture {
+                        if isEditMode {
+                            onDragStarted(page)
+                        }
+                    }
+                    .overlay(
+                        isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear
+                    )
+                    .overlay(
+                        true ?
+                            RoundedRectangle(cornerRadius: 0)
+                                .stroke(Color.red, lineWidth: 2)
+                                .allowsHitTesting(false) : nil
+                    )
+                } else if pageNumber > 0 && pageNumber <= maxPageNumber {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.1))
+                        .frame(
+                            width: defaultSize.width * scale,
+                            height: defaultSize.height * scale
+                        )
+                        .overlay(
+                            Text("\(pageNumber)")
+                                .font(.system(size: 60))
+                                .foregroundColor(.gray.opacity(0.3))
+                        )
+                }
+            }
+            .frame(
+                width: defaultSize.width * scale,
+                height: defaultSize.height * scale,
+                alignment: .center
+            )
+            .clipped()
         }
     }
     
@@ -293,48 +260,14 @@ struct DraggableLayoutView: View {
             }
             .padding()
         }
-        .contentShape(Rectangle())  // Az egész területet kattinthatóvá tesszük
+        .contentShape(Rectangle())
         .onTapGesture {
-            // Ha üres területre kattintunk, töröljük a kijelölést
             clearSelection()
         }
         .onChange(of: isEditMode) { oldValue, newValue in
-            // Ha kikapcsolják a szerkesztést, töröljük a kijelölést
             if !newValue {
                 clearSelection()
             }
         }
     }
 }
-
-// MARK: - Drop Delegate
-
-private struct LayoutDropDelegate: DropDelegate {
-    let layout: Layout
-    @Binding var draggedArticle: String?
-    @Binding var draggedPageNumber: Int?
-    @Binding var dropLocation: CGPoint
-    let targetPage: Layout.Page?
-    
-    func performDrop(info: DropInfo) -> Bool {
-        // Itt kell majd implementálni az Article áthelyezését
-        draggedArticle = nil
-        draggedPageNumber = nil
-        return true
-    }
-    
-    func dropUpdated(info: DropInfo) -> DropProposal? {
-        dropLocation = info.location
-        return DropProposal(operation: .move)
-    }
-    
-    func validateDrop(info: DropInfo) -> Bool {
-        guard let draggedArticle = draggedArticle,
-              let targetPage = targetPage else { return false }
-        return draggedArticle != targetPage.articleName
-    }
-}
-
-//#Preview {
-//    DraggableLayoutView(layout: Layout()) // Tesztadatokkal kellene feltölteni
-//}

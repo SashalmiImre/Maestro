@@ -3,6 +3,7 @@ import PDFKit
 
 struct Article {
     let name: String
+    let inddFile: URL
     let startPage: Int
     let endPage: Int
     var pages: [Int: PDFDocument]
@@ -16,6 +17,7 @@ struct Article {
         self.name = parsedName.articleName ?? inddFile.deletingPathExtension().lastPathComponent
         self.startPage = parsedName.startPage
         self.endPage = parsedName.endPage ?? parsedName.startPage
+        self.inddFile = inddFile
         
         // PDF dokumentum keresése az előre megtalált PDF-ek közül
         let inddName = inddFile.deletingPathExtension().lastPathComponent

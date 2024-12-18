@@ -2,23 +2,32 @@ import SwiftUI
 import PDFKit
 
 struct LayoutsView: View {
+    @StateObject private var publication: Publication
     @StateObject private var viewModel: LayoutsViewModel
     @AppStorage("maxPageNumberText") private var maxPageNumberText: String = ""
     @AppStorage("userDefinedMaxPage") private var userDefinedMaxPage: Int?
     @State private var isEditMode: Bool = false
+    @State private var zoomLevel: Double = 0.2
     
     init(publication: Publication) {
+        _publication = StateObject(wrappedValue: publication)
         _viewModel = StateObject(wrappedValue: LayoutsViewModel(publication: publication))
     }
     
     // MARK: - Layout Content
     
     private func layoutView(for layout: Layout, at index: Int) -> some View {
-        DraggableLayoutView(
+        LayoutView(
             layout: layout,
             userDefinedMaxPage: userDefinedMaxPage,
-            isEditMode: isEditMode
+            isEditMode: isEditMode,
+            pdfScale: CGFloat(zoomLevel)
         )
+        .onAppear {
+            Task {
+                await publication.refreshArticles()
+            }
+        }
         .tabItem {
             Text("Layout \(index + 1)")
         }
@@ -41,6 +50,21 @@ struct LayoutsView: View {
                     Image(systemName: isEditMode ? "lock.open" : "lock")
                 }
                 .help(isEditMode ? "Szerkesztés mód" : "Olvasás mód")
+                
+                Divider()
+                
+                HStack {
+                    Image(systemName: "minus.magnifyingglass")
+                    Slider(
+                        value: $zoomLevel,
+                        in: 0.1...1.0,
+                        step: 0.15
+                    )
+                    .frame(width: 100)
+                    Image(systemName: "plus.magnifyingglass")
+                }
+                
+                Divider()
                 
                 HStack {
                     Text("Maximum oldalszám:")
