@@ -39,9 +39,11 @@ class Publication: ObservableObject {
                 try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
             }
         }
+        
+        refreshArticles()
     }
     
-    func refreshArticles() async {
+    func refreshArticles() {
         // Megkeressük az összes PDF-et és InDesign fájlt
         try? findAllFiles()
         

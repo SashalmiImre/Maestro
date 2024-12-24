@@ -2,17 +2,21 @@ import SwiftUI
 import PDFKit
 
 struct LayoutsView: View {
-    @StateObject private var publication: Publication
-    @StateObject private var viewModel: LayoutsViewModel
-    @AppStorage("maxPageNumberText") private var maxPageNumberText: String = ""
-    @AppStorage("userDefinedMaxPage") private var userDefinedMaxPage: Int?
-    @State private var isEditMode: Bool = false
-    @State private var zoomLevel: Double = 0.2
+    @EnvironmentObject var appState: AppState
+    @State private var selectedLayoutIndex = 0
     
-    init(publication: Publication) {
-        _publication = StateObject(wrappedValue: publication)
-        _viewModel = StateObject(wrappedValue: LayoutsViewModel(publication: publication))
+    @State private var maxPageNumberText: String = ""
+    @State private var userDefinedMaxPage: Int?
+    @State private var isEditMode: Bool = false
+    
+    // Grouped related state variables
+    private struct ZoomSettings {
+        static let range = 0.1...1.0
+        static let step = 0.15
+        static let initial = 0.2
     }
+    
+    @State private var zoomLevel: Double = ZoomSettings.initial
     
     // MARK: - Layout Content
     
@@ -23,74 +27,82 @@ struct LayoutsView: View {
             isEditMode: isEditMode,
             pdfScale: CGFloat(zoomLevel)
         )
-        .onAppear {
-            Task {
-                await publication.refreshArticles()
-            }
-        }
         .tabItem {
             Text("Layout \(index + 1)")
         }
         .tag(index)
     }
     
+    // MARK: - Helper Views
+    
+    private var zoomControls: some View {
+        HStack {
+            Image(systemName: "minus.magnifyingglass")
+            Slider(
+                value: $zoomLevel,
+                in: ZoomSettings.range,
+                step: ZoomSettings.step
+            )
+            .frame(width: 100)
+            Image(systemName: "plus.magnifyingglass")
+        }
+    }
+    
+    private var maxPageControls: some View {
+        HStack {
+            Text("Maximum oldalszám:")
+                .foregroundColor(.secondary)
+            TextField("", text: $maxPageNumberText)
+                .frame(width: 60)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onChange(of: maxPageNumberText) { _, newValue in
+                    if let number = Int(newValue) {
+                        userDefinedMaxPage = number
+                    } else {
+                        userDefinedMaxPage = nil
+                    }
+                }
+        }
+    }
+    
     // MARK: - Body
     
     var body: some View {
-        TabView(selection: $viewModel.selectedLayoutIndex) {
-            ForEach(Array(viewModel.layouts.enumerated()), id: \.offset) { index, layout in
+        TabView(selection: $selectedLayoutIndex) {
+            ForEach(Array(appState.layouts.enumerated()), id: \.offset) { index, layout in
                 layoutView(for: layout, at: index)
             }
         }
         .padding()
-        .navigationTitle("Layoutok")
+        .navigationTitle("Elrendezések")
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                Toggle(isOn: $isEditMode) {
-                    Image(systemName: isEditMode ? "lock.open" : "lock")
-                }
-                .help(isEditMode ? "Szerkesztés mód" : "Olvasás mód")
-                
-                Divider()
-                
                 HStack {
-                    Image(systemName: "minus.magnifyingglass")
-                    Slider(
-                        value: $zoomLevel,
-                        in: 0.1...1.0,
-                        step: 0.15
-                    )
-                    .frame(width: 100)
-                    Image(systemName: "plus.magnifyingglass")
-                }
-                
-                Divider()
-                
-                HStack {
-                    Text("Maximum oldalszám:")
-                        .foregroundColor(.secondary)
-                    TextField("", text: $maxPageNumberText)
-                        .frame(width: 60)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .onChange(of: maxPageNumberText) { oldValue, newValue in
-                            if let number = Int(newValue) {
-                                userDefinedMaxPage = number
-                            } else {
-                                userDefinedMaxPage = nil
-                            }
-                        }
-                }
-                
-                Button(action: viewModel.refreshLayouts) {
-                    Image(systemName: "arrow.clockwise")
+                    Toggle(isOn: $isEditMode) {
+                        Image(systemName: isEditMode ? "lock.open" : "lock")
+                    }
+                    .help(isEditMode ? "Szerkesztés mód" : "Olvasás mód")
+                    
+                    Divider()
+                    
+                    zoomControls
+                    Divider()
+                    
+                    maxPageControls
+                    
+                    Button {
+                        appState.refreshLayouts()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
                 }
             }
         }
         .onAppear {
             if maxPageNumberText.isEmpty {
-                let initialMax = viewModel.layouts.first.map { layout in
+                let initialMax = appState.layouts.first.map { layout in
                     max(
-                        layout.layoutPages.map(\.pageNumber).max() ?? 0,
+                        layout.pages.map(\.pageNumber).max() ?? 0,
                         layout.pageCount
                     )
                 } ?? 0

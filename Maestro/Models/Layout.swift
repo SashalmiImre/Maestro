@@ -1,53 +1,81 @@
 import Foundation
 import PDFKit
 
+/// Layout: Egy kiadvány lehetséges oldalelrendezését reprezentáló típus.
+/// Ez a struktúra felelős a cikkek oldalainak nyilvántartásáért és
+/// az oldalütközések kezeléséért.
 struct Layout {
-    /// Egy oldal reprezentációja a layoutban
+    /// A layoutban tárolt cikkek gyűjteménye.
+    /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
+    private var articles: [Article] = []
+    
+    /// Megpróbál hozzáadni egy új cikket a layouthoz.
+    /// A metódus ellenőrzi, hogy van-e oldalszám-ütközés a már meglévő cikkekkel.
+    ///
+    /// - Parameter article: A hozzáadandó cikk
+    /// - Returns: `true` ha sikerült a hozzáadás (nincs ütközés),
+    ///           `false` ha ütközés miatt nem sikerült
+    /// - Note: A @discardableResult attribútum lehetővé teszi, hogy
+    ///        figyelmen kívül hagyjuk a visszatérési értéket, ha nem releváns
+    @discardableResult
+    mutating func add(_ article: Article) -> Bool {
+        // Az Article.overlaps metódusával ellenőrizzük, hogy van-e ütközés
+        // bármely már meglévő cikkel
+        let hasConflict = articles.contains { article.overlaps(with: $0) }
+        
+        // Ütközés esetén false-szal térünk vissza, de nem módosítjuk a layoutot
+        if hasConflict {
+            return false
+        }
+        
+        // Ha nincs ütközés, hozzáadjuk az új cikket
+        articles.append(article)
+        return true
+    }
+    
+    /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
+    var isEmpty: Bool {
+        articles.isEmpty
+    }
+    
+    /// Kiszámolja a layoutban szereplő összes oldalszámot.
+    /// Ez a szám megmutatja, hogy hány oldalt foglalnak el a cikkek összesen.
+    var pageCount: Int {
+        // Mivel nincs átfedés a cikkek oldalai között, egyszerűen
+        // összegezzük a cikkek által lefedett oldalak számát
+        articles.reduce(0) { count, article in
+            count + article.coverage.count
+        }
+    }
+    
+    /// Az összes oldal lekérése rendezett formában.
+    /// A visszaadott tömb tartalmazza az összes oldal részletes információit,
+    /// oldalszám szerint növekvő sorrendben.
+    var pages: [Page] {
+        var pages: [Page] = []
+        // Végigmegyünk minden cikken és annak minden oldalán
+        for article in articles {
+            for (pageNumber, pdfDocument) in article.pages {
+                pages.append(Page(
+                    articleName: article.name,
+                    pageNumber: pageNumber,
+                    pdfDocument: pdfDocument
+                ))
+            }
+        }
+        // Az oldalakat oldalszám szerint rendezzük
+        return pages.sorted { $0.pageNumber < $1.pageNumber }
+    }
+    
+    /// Egy konkrét oldal reprezentációja a layoutban.
+    /// Tartalmazza az oldal minden szükséges adatát:
+    /// a cikk nevét, az oldalszámot és a PDF dokumentumot.
     struct Page {
+        /// A cikk neve, amihez az oldal tartozik
         let articleName: String
+        /// Az oldal száma a kiadványban
         let pageNumber: Int
+        /// Az oldalhoz tartozó PDF dokumentum
         let pdfDocument: PDFDocument
     }
-    
-    /// A layout oldalai
-    private var pages: [Page] = []
-    
-    /// A használt oldalszámok halmaza
-    private var usedPageNumbers: Set<Int> = []
-    
-    /// Ellenőrzi, hogy egy oldalszám hozzáadható-e a layouthoz
-    /// - Parameter pageNumber: Az ellenőrizendő oldalszám
-    /// - Returns: `true` ha hozzáadható, `false` ha nem
-    func canAdd(pageNumber: Int) -> Bool {
-        !usedPageNumbers.contains(pageNumber)
-    }
-    
-    /// Hozzáad egy oldalt a layouthoz
-    /// - Parameters:
-    ///   - articleName: A cikk neve
-    ///   - pageNumber: Az oldalszám
-    ///   - pdfDocument: A PDF dokumentum
-    mutating func add(articleName: String, pageNumber: Int, pdfDocument: PDFDocument) {
-        pages.append(Page(
-            articleName: articleName,
-            pageNumber: pageNumber,
-            pdfDocument: pdfDocument
-        ))
-        usedPageNumbers.insert(pageNumber)
-    }
-    
-    /// Ellenőrzi, hogy a layout üres-e
-    var isEmpty: Bool {
-        pages.isEmpty
-    }
-    
-    /// A layout oldalainak száma
-    var pageCount: Int {
-        pages.count
-    }
-    
-    /// Az oldalak lekérése
-    var layoutPages: [Page] {
-        pages.sorted { $0.pageNumber < $1.pageNumber }
-    }
-} 
+}

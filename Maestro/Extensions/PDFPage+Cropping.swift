@@ -14,7 +14,7 @@ extension PDFPage {
     func createPDF(side: CropSide) -> PDFDocument? {
         guard let newPage = self.copy() as? PDFPage else { return nil }
         
-        let pageRect = self.bounds(for: .cropBox)
+        let pageRect = self.bounds(for: .trimBox)
         let halfWidth = pageRect.width / 2
         
         let bounds: CGRect
@@ -27,7 +27,7 @@ extension PDFPage {
             bounds = pageRect
         }
         
-        newPage.setBounds(bounds, for: .cropBox)
+        newPage.setBounds(bounds, for: .trimBox)
         
         let newPDF = PDFDocument()
         newPDF.insert(newPage, at: 0)

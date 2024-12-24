@@ -36,7 +36,7 @@ struct DropView: View {
         guard let provider = providers.first else { return }
         
         provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, error in
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 if let error = error {
                     self.error = error
                     return
@@ -54,7 +54,7 @@ struct DropView: View {
                 } catch {
                     self.error = DropView.Errors.failedToCreatePublication
                 }
-            }
+//            }
         }
     }
 }

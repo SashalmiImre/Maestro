@@ -4,37 +4,28 @@ import PDFKit
 struct Article {
     let name: String
     let inddFile: URL
-    let startPage: Int
-    let endPage: Int
+    let coverage: ClosedRange<Int>
     var pages: [Int: PDFDocument]
     
     init?(inddFile: URL, availablePDFs: [URL]) {
         // Fájlnév feldolgozása
-        guard let parsedName = FileNameParser.parse(fileName: inddFile.deletingPathExtension().lastPathComponent) else {
+        let inddFileName = inddFile.deletingPathExtension().lastPathComponent
+        guard let parsedName = FileNameParser.parse(fileName: inddFileName) else {
             return nil
         }
         
-        self.name = parsedName.articleName ?? inddFile.deletingPathExtension().lastPathComponent
-        self.startPage = parsedName.startPage
-        self.endPage = parsedName.endPage ?? parsedName.startPage
+        self.name     = parsedName.articleName ?? inddFile.deletingPathExtension().lastPathComponent
         self.inddFile = inddFile
-        
-        // PDF dokumentum keresése az előre megtalált PDF-ek közül
-        let inddName = inddFile.deletingPathExtension().lastPathComponent
+        self.coverage = parsedName.startPage...(parsedName.endPage ?? parsedName.startPage)
         
         // Keressük a leghasonlóbb nevű PDF-et az előre megtalált PDF-ek közül
         var bestMatch: (url: URL, similarity: Double)? = nil
-        
         for pdfURL in availablePDFs {
-            let pdfName = pdfURL.deletingPathExtension().lastPathComponent
-            let similarity = inddName.calculateSimilarity(with: pdfName)
+            let pdfFileName = pdfURL.deletingPathExtension().lastPathComponent
+            let similarity  = inddFileName.calculateSimilarity(with: pdfFileName)
             
-            // Frissítjük a best match-et, ha:
-            // 1. A hasonlóság legalább 90% ÉS
-            // 2. Vagy még nincs best match, vagy ez jobb, mint az eddigi legjobb
             if similarity >= 0.9 && (bestMatch == nil || similarity > bestMatch!.similarity) {
                 bestMatch = (pdfURL, similarity)
-                print("Új legjobb találat: \(pdfName) (\(similarity * 100)% egyezés)")
             }
         }
         
@@ -42,10 +33,13 @@ struct Article {
               let pdfDocument = PDFDocument(url: bestMatch.url) else {
             return nil
         }
-        
-        print("Végső választás: \(bestMatch.url.lastPathComponent) (\(bestMatch.similarity * 100)% egyezés)")
-        
+                
         // Oldalak feldolgozása
-        self.pages = pdfDocument.collectingPages(startPage: startPage, endPage: endPage)
+        self.pages = pdfDocument.collectingPages(coverage: coverage)
     }
-} 
+    
+    /// Ellenőrzi, hogy van-e átfedés két cikk között
+    func overlaps(with other: Article) -> Bool {
+        return self.coverage.overlaps(other.coverage)
+    }
+}

@@ -26,15 +26,15 @@ struct LayoutView: View {
     /// A tényleges maximum oldalszám (felhasználói vagy számított)
     private var effectiveMaxPageNumber: Int {
         userDefinedMaxPage ?? max(
-            layout.layoutPages.map(\.pageNumber).max() ?? 0,
+            layout.pages.map(\.pageNumber).max() ?? 0,
             layout.pageCount
         )
     }
     
     /// Kiszámítja az alapértelmezett oldalméretet a layout alapján
     private var defaultPageSize: CGSize {
-        if let firstPage = layout.layoutPages.first?.pdfDocument.page(at: 0) {
-            let bounds = firstPage.bounds(for: .cropBox)
+        if let firstPage = layout.pages.first?.pdfDocument.page(at: 0) {
+            let bounds = firstPage.bounds(for: .trimBox)
             return CGSize(width: bounds.width, height: bounds.height)
         }
         return CGSize(width: 595, height: 842)  // A4 alapértelmezett méret
@@ -43,7 +43,7 @@ struct LayoutView: View {
     /// Oldalpárok létrehozása
     private var pagePairs: [(leftNumber: Int, rightNumber: Int, left: Layout.Page?, right: Layout.Page?)] {
         var pairs: [(leftNumber: Int, rightNumber: Int, left: Layout.Page?, right: Layout.Page?)] = []
-        let sortedPages = layout.layoutPages.sorted { $0.pageNumber < $1.pageNumber }
+        let sortedPages = layout.pages.sorted { $0.pageNumber < $1.pageNumber }
         
         if effectiveMaxPageNumber < 1 { return pairs }
         
@@ -196,7 +196,7 @@ struct LayoutView: View {
                 if let page = page {
                     LazyLoadingView(
                         pdfPage: page.pdfDocument.page(at: 0)!,
-                        displayBox: .cropBox,
+                        displayBox: .trimBox,
                         scale: scale
                     )
                     .frame(
