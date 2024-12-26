@@ -180,9 +180,8 @@ struct LayoutView: View {
         }
     }
     
-    /// Egy oldal megjelenítése drag & drop támogatással
     private struct PageView: View {
-        @EnvironmentObject var publication: Publication
+        @EnvironmentObject var manager: PublicationManager
         
         let page: Layout.Page?
         let scale: CGFloat
@@ -192,6 +191,13 @@ struct LayoutView: View {
         let pageNumber: Int
         let isEditMode: Bool
         let maxPageNumber: Int
+        
+        // Check if PDF is from the PDF workflow folder
+        private var isPDFFromWorkflow: Bool {
+            guard let page = page,
+                  let pdfFolder = manager.publication?.pdfFolder else { return true }
+            return page.pdfSource.isSubfolder(of: pdfFolder)
+        }
         
         var body: some View {
             Group {
@@ -215,7 +221,7 @@ struct LayoutView: View {
                     .overlay(isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear)
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
-                            .stroke(Color.red, lineWidth: 2)
+                            .stroke(isPDFFromWorkflow ? Color.clear : Color.red, lineWidth: 2)
                             .allowsHitTesting(false)
                     )
                 } else if pageNumber > 0 && pageNumber <= maxPageNumber {

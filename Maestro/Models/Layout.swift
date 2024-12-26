@@ -62,7 +62,8 @@ struct Layout: Equatable, Hashable {
                 pages.append(Page(
                     articleName: article.name,
                     pageNumber: pageNumber,
-                    pdfDocument: pdfDocument
+                    pdfDocument: pdfDocument,
+                    pdfSource: article.pdfSource
                 ))
             }
         }
@@ -80,5 +81,7 @@ struct Layout: Equatable, Hashable {
         let pageNumber: Int
         /// Az oldalhoz tartozó PDF dokumentum
         let pdfDocument: PDFDocument
+        /// Az oldalhoz tartozó PDF forrás URL
+        let pdfSource: URL
     }
 }

@@ -16,6 +16,9 @@ struct Article: Equatable, Hashable {
     /// A cikk PDF oldalai, ahol a kulcs az oldalszám
     var pages: [Int: PDFDocument]
     
+    /// A cikk PDF forrásának URL-je
+    let pdfSource: URL
+    
     /// Inicializálja a cikket egy InDesign fájl és az elérhető PDF-ek alapján
     /// - Parameters:
     ///   - inddFile: Az InDesign fájl URL-je
@@ -49,6 +52,9 @@ struct Article: Equatable, Hashable {
             return nil
         }
                 
+        // Store the PDF source
+        self.pdfSource = bestMatch.url
+        
         // Oldalak feldolgozása és tárolása
         self.pages = pdfDocument.collectingPages(coverage: coverage)
     }
