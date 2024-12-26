@@ -2,14 +2,16 @@ import SwiftUI
 import PDFKit
 
 struct LayoutView: View {
-    @EnvironmentObject var publication: Publication
+    // Properties remain the same until PageView
+    
+    @EnvironmentObject var manager: PublicationManager
     
     let layout: Layout
     let userDefinedMaxPage: Int?
     let isEditMode: Bool
     let pdfScale: CGFloat
     
-    // Drag & Drop állapot kezelése
+    // Drag & Drop state management
     @State private var draggedArticle: String? = nil
     @State private var draggedPageNumber: Int? = nil
     @State private var dropLocation: CGPoint = .zero
@@ -23,11 +25,11 @@ struct LayoutView: View {
     
     // MARK: - Computed Properties
     
-    /// A tényleges maximum oldalszám (felhasználói vagy számított)
+    /// A tényleges maximum oldalszám (felhasználói vagy számított
     private var effectiveMaxPageNumber: Int {
         userDefinedMaxPage ?? max(
-            layout.pages.map(\.pageNumber).max() ?? 0,
-            layout.pageCount
+            self.layout.pages.map(\.pageNumber).max() ?? 0,
+            self.layout.pageCount
         )
     }
     
@@ -210,14 +212,11 @@ struct LayoutView: View {
                             onDragStarted(page)
                         }
                     }
+                    .overlay(isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear)
                     .overlay(
-                        isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear
-                    )
-                    .overlay(
-                        true ?
-                            RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.red, lineWidth: 2)
-                                .allowsHitTesting(false) : nil
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.red, lineWidth: 2)
+                            .allowsHitTesting(false)
                     )
                 } else if pageNumber > 0 && pageNumber <= maxPageNumber {
                     Rectangle()
@@ -264,7 +263,7 @@ struct LayoutView: View {
         .onTapGesture {
             clearSelection()
         }
-        .onChange(of: isEditMode) { oldValue, newValue in
+        .onChange(of: isEditMode) { _, newValue in
             if !newValue {
                 clearSelection()
             }

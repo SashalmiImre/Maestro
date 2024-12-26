@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 
-struct Article {
+struct Article: Equatable, Hashable {
     let name: String
     let inddFile: URL
     let coverage: ClosedRange<Int>

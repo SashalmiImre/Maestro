@@ -2,8 +2,7 @@ import SwiftUI
 import PDFKit
 
 struct LayoutsView: View {
-    @EnvironmentObject var appState: AppState
-    @State private var selectedLayoutIndex = 0
+    @EnvironmentObject var manager: PublicationManager
     
     @State private var maxPageNumberText: String = ""
     @State private var userDefinedMaxPage: Int?
@@ -18,8 +17,12 @@ struct LayoutsView: View {
     
     @State private var zoomLevel: Double = ZoomSettings.initial
     
+    // Add layout change observer
+    @State private var previousLayoutCount = 0
+    
     // MARK: - Layout Content
     
+    @ViewBuilder
     private func layoutView(for layout: Layout, at index: Int) -> some View {
         LayoutView(
             layout: layout,
@@ -28,7 +31,8 @@ struct LayoutsView: View {
             pdfScale: CGFloat(zoomLevel)
         )
         .tabItem {
-            Text("Layout \(index + 1)")
+            let layoutVersionCharacter = Character(UnicodeScalar(index + 65)!)
+            Text("\(layoutVersionCharacter) - elrendezés")
         }
         .tag(index)
     }
@@ -68,13 +72,14 @@ struct LayoutsView: View {
     // MARK: - Body
     
     var body: some View {
-        TabView(selection: $selectedLayoutIndex) {
-            ForEach(Array(appState.layouts.enumerated()), id: \.offset) { index, layout in
+        TabView(selection: $manager.selectedLayoutIndex) {
+            let layouts = Array(Array(manager.layouts ?? []).enumerated())
+            ForEach(layouts, id: \.offset) { index, layout in
                 layoutView(for: layout, at: index)
             }
         }
         .padding()
-        .navigationTitle("Elrendezések")
+        .navigationTitle(manager.publication?.name ?? "Név nélkül")
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 HStack {
@@ -84,29 +89,46 @@ struct LayoutsView: View {
                     .help(isEditMode ? "Szerkesztés mód" : "Olvasás mód")
                     
                     Divider()
-                    
                     zoomControls
                     Divider()
-                    
                     maxPageControls
                     
                     Button {
-                        appState.refreshLayouts()
+                        Task {
+                            await manager.refreshLayouts()
+                        }
                     } label: {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
             }
         }
-        .onAppear {
+        .onChange(of: manager.layouts ?? []) { _, newLayouts in
+            // Update selected index if needed
+            if newLayouts.count <= manager.selectedLayoutIndex {
+                manager.selectedLayoutIndex = max(0, newLayouts.count - 1)
+            }
+            
+            // Update max page number if needed
+            let newMax = newLayouts.first.map { layout in
+                max(
+                    layout.pages.map(\.pageNumber).max() ?? 0,
+                    layout.pageCount
+                )
+            } ?? 0
+            maxPageNumberText = String(newMax)
+            previousLayoutCount = newLayouts.count
+        }
+        .task {
             if maxPageNumberText.isEmpty {
-                let initialMax = appState.layouts.first.map { layout in
+                let initialMax = manager.layouts?.first.map { layout in
                     max(
                         layout.pages.map(\.pageNumber).max() ?? 0,
                         layout.pageCount
                     )
                 } ?? 0
                 maxPageNumberText = String(initialMax)
+                previousLayoutCount = manager.layouts?.count ?? 0
             }
         }
     }

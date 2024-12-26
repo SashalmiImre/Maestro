@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var appState: AppState = .init()
+    @StateObject var manager: PublicationManager = .init()
     @State private var error: Error?
     
     var body: some View {
         Group {
-            if appState.publication == nil {
+            if manager.publication == nil {
                 // Ha nincs publikáció, várjuk a drag & drop-ot
-                DropView(publication: $appState.publication, error: $error)
+                DropView(error: $error)
 
             } else {
                 // Ha van érvényes publikáció, megjelenítjük a layoutokat
                 LayoutsView()
-                    .environmentObject(appState)
             }
         }
+        .environmentObject(manager)
         .frame(minWidth: 800, minHeight: 600)
     }
 }

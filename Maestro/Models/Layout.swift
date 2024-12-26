@@ -4,7 +4,7 @@ import PDFKit
 /// Layout: Egy kiadvány lehetséges oldalelrendezését reprezentáló típus.
 /// Ez a struktúra felelős a cikkek oldalainak nyilvántartásáért és
 /// az oldalütközések kezeléséért.
-struct Layout {
+struct Layout: Equatable, Hashable {
     /// A layoutban tárolt cikkek gyűjteménye.
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
     private var articles: [Article] = []
@@ -21,16 +21,16 @@ struct Layout {
     mutating func add(_ article: Article) -> Bool {
         // Az Article.overlaps metódusával ellenőrizzük, hogy van-e ütközés
         // bármely már meglévő cikkel
-        let hasConflict = articles.contains { article.overlaps(with: $0) }
-        
+        //let hasConflict = articles.contains { article.overlaps(with: $0) }
+        let hasNoConflict = !articles.contains { $0.overlaps(with: article) }
+
         // Ütközés esetén false-szal térünk vissza, de nem módosítjuk a layoutot
-        if hasConflict {
-            return false
+        if hasNoConflict {
+            articles.append(article)
+            return true
         }
         
-        // Ha nincs ütközés, hozzáadjuk az új cikket
-        articles.append(article)
-        return true
+        return false
     }
     
     /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
