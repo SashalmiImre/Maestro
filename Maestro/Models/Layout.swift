@@ -4,6 +4,7 @@ import PDFKit
 /// Layout: Egy kiadvány lehetséges oldalelrendezését reprezentáló típus.
 /// Ez a struktúra felelős a cikkek oldalainak nyilvántartásáért és
 /// az oldalütközések kezeléséért.
+/// - Note: A struktúra Equatable és Hashable, hogy használható legyen Set és Dictionary típusokban
 struct Layout: Equatable, Hashable {
     /// A layoutban tárolt cikkek gyűjteménye.
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
@@ -21,10 +22,9 @@ struct Layout: Equatable, Hashable {
     mutating func add(_ article: Article) -> Bool {
         // Az Article.overlaps metódusával ellenőrizzük, hogy van-e ütközés
         // bármely már meglévő cikkel
-        //let hasConflict = articles.contains { article.overlaps(with: $0) }
         let hasNoConflict = !articles.contains { $0.overlaps(with: article) }
 
-        // Ütközés esetén false-szal térünk vissza, de nem módosítjuk a layoutot
+        // Csak akkor adjuk hozzá a cikket, ha nincs ütközés
         if hasNoConflict {
             articles.append(article)
             return true
@@ -34,12 +34,14 @@ struct Layout: Equatable, Hashable {
     }
     
     /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
+    /// - Returns: `true` ha a layout üres, `false` ha tartalmaz cikkeket
     var isEmpty: Bool {
         articles.isEmpty
     }
     
     /// Kiszámolja a layoutban szereplő összes oldalszámot.
     /// Ez a szám megmutatja, hogy hány oldalt foglalnak el a cikkek összesen.
+    /// - Returns: A cikkek által lefedett oldalak száma
     var pageCount: Int {
         // Mivel nincs átfedés a cikkek oldalai között, egyszerűen
         // összegezzük a cikkek által lefedett oldalak számát
@@ -51,6 +53,7 @@ struct Layout: Equatable, Hashable {
     /// Az összes oldal lekérése rendezett formában.
     /// A visszaadott tömb tartalmazza az összes oldal részletes információit,
     /// oldalszám szerint növekvő sorrendben.
+    /// - Returns: Az oldalak tömbje, oldalszám szerint rendezve
     var pages: [Page] {
         var pages: [Page] = []
         // Végigmegyünk minden cikken és annak minden oldalán

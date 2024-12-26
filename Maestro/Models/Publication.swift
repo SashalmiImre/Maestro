@@ -1,25 +1,44 @@
 import Foundation
 import PDFKit
 
-/// Egy publikáció reprezentációja
+/// Egy teljes kiadvány reprezentációja, amely kezeli a cikkeket és a munkafolyamat mappákat
+/// - Note: A @MainActor attribútum biztosítja, hogy az osztály csak a fő szálon fusson
 @MainActor
 class Publication: ObservableObject {
     // MARK: - Konstansok
     
+    /// A kiadvány neve (a mappa neve alapján)
     let name: String
     
+    /// A kiadványhoz tartozó cikkek listája
     @Published var articles: [Article] = .init()
     
+    /// A kiadvány alap mappája
     let baseFolder: URL
+    
+    /// A PDF fájlok tárolására szolgáló mappa
     let pdfFolder: URL
+    
+    /// A tördelt anyagok mappája
     let layoutFolder: URL
+    
+    /// A korrektúrázott anyagok mappája
     let correctedFolder: URL
+    
+    /// A nyomdakész anyagok mappája
     let printableFolder: URL
+    
+    /// A levilágított anyagok mappája
     let printedFolder: URL
+    
+    /// Az összes munkafolyamat mappa együtt
     var workflowFolders: [URL] {
         [pdfFolder, layoutFolder, correctedFolder, printableFolder, printedFolder]
     }
     
+    /// Inicializálja a kiadványt egy mappa URL alapján
+    /// - Parameter folderURL: A kiadvány gyökérmappájának URL-je
+    /// - Throws: Hibát dob, ha nem sikerül létrehozni a szükséges mappákat
     init(folderURL: URL) async throws {
         self.baseFolder = folderURL
         self.name = folderURL.lastPathComponent
