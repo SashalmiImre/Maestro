@@ -42,7 +42,7 @@ struct Article: Equatable, Hashable {
             let pdfFileName = pdfURL.deletingPathExtension().lastPathComponent
             let similarity  = inddFileName.calculateSimilarity(with: pdfFileName)
             
-            if similarity >= 0.9 && (bestMatch == nil || similarity > bestMatch!.similarity) {
+            if similarity >= 0.8 && (bestMatch == nil || similarity > bestMatch!.similarity) {
                 bestMatch = (pdfURL, similarity)
             }
         }

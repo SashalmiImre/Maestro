@@ -13,7 +13,7 @@ struct ParsedFileName {
 }
 
 class FileNameParser {
-    private static let pattern = #"^(?:([sS])|(?i:BEST))\s+(\d{1,3})(?:\s+(\d{1,3}))?\s*(.+)?$"#
+    private static let pattern = #"^(?:([sS])|(?i:BEST))\s+(\d{1,3})(?:[\s_](\d{1,3}))?\s*(.+)?$"#
     
     static func parse(fileName: String) -> ParsedFileName? {
         guard let match = fileName.matches(pattern: pattern).first else { return nil }
@@ -56,4 +56,4 @@ private extension String {
             range: NSRange(location: 0, length: self.utf16.count)
         )
     }
-} 
+}

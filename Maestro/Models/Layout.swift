@@ -10,6 +10,9 @@ struct Layout: Equatable, Hashable {
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
     private var articles: [Article] = []
     
+    // Article áthelyezések követése
+    private var pageChanges: [PageChange] = []
+    
     /// Megpróbál hozzáadni egy új cikket a layouthoz.
     /// A metódus ellenőrzi, hogy van-e oldalszám-ütközés a már meglévő cikkekkel.
     ///
@@ -83,5 +86,53 @@ struct Layout: Equatable, Hashable {
         let pdfDocument: PDFDocument
         /// Az oldalhoz tartozó PDF forrás URL
         let pdfSource: URL
+    }
+    
+    /// Új metódus az áthelyezés rögzítésére
+    mutating func moveArticle(_ articleName: String, toStartPage newStart: Int) -> Bool {
+        guard let articleIndex = articles.firstIndex(where: { $0.name == articleName }),
+              let originalStart = articles[articleIndex].coverage.first else {
+            return false
+        }
+        
+        // Ellenőrizzük a párosság feltételét
+        let isOriginalEven = originalStart % 2 == 0
+        let isNewEven = newStart % 2 == 0
+        if isOriginalEven != isNewEven {
+            return false
+        }
+        
+        // Rögzítjük a változást
+        pageChanges.append(PageChange(
+            articleName: articleName,
+            originalStart: originalStart,
+            newStart: newStart
+        ))
+        return true
+    }
+    
+    /// Új getter a változások lekérdezéséhez
+    var articleMovements: [PageChange] {
+        pageChanges
+    }
+    
+    struct PageChange: Equatable, Hashable {
+        let articleName: String
+        let originalStart: Int
+        let newStart: Int
+    }
+    
+    // MARK: - Equatable Implementation
+    
+    static func == (lhs: Layout, rhs: Layout) -> Bool {
+        lhs.articles == rhs.articles &&
+        lhs.pageChanges == rhs.pageChanges
+    }
+    
+    // MARK: - Hashable Implementation
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(articles)
+        hasher.combine(pageChanges)
     }
 }

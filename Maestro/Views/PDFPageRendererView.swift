@@ -1,5 +1,5 @@
 //
-//  PDFPageView.swift
+//  PDFPageRendererView.swift
 //  Maestro
 //
 //  Created by Sashalmi Imre on 14/12/2024.
@@ -9,7 +9,7 @@ import SwiftUI
 import PDFKit
 
 /// A PDFPage lusta betöltését és cache-elését végző nézet
-struct LazyLoadingView: View {
+struct PDFPageRendererView: View {
     // MARK: - Properties
     
     @State private var isLoading: Bool = true
@@ -77,7 +77,7 @@ struct LazyLoadingView: View {
         let key = "\(pdfPage.hash)_\(scale)_\(displayBox.rawValue)" as NSString
         
         // Check cache on MainActor
-        if let cachedImage = Self.cache.object(forKey: key) {
+        if let cachedImage = PDFPageRendererView.cache.object(forKey: key) {
             pageImage = Image(nsImage: cachedImage)
             isLoading = false
             return
@@ -115,7 +115,7 @@ struct LazyLoadingView: View {
             
             // Convert CGImage to NSImage on MainActor
             let nsImage = NSImage(cgImage: cgImage, size: size)
-            Self.cache.setObject(nsImage, forKey: key)
+            PDFPageRendererView.cache.setObject(nsImage, forKey: key)
             pageImage = Image(nsImage: nsImage)
             isLoading = false
             previousImage = nil  // Töröljük az előző képet, ha az új elkészült

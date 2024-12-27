@@ -15,12 +15,73 @@ struct LayoutView: View {
     @State private var draggedArticle: String? = nil
     @State private var draggedPageNumber: Int? = nil
     @State private var dropLocation: CGPoint = .zero
+    @State private var draggedPages: [Layout.Page]? = nil
+    @State private var dropTargetPageNumber: Int? = nil
+    @State private var mouseLocation: CGPoint = .zero
+    @State private var isDragging: Bool = false
+    @State private var dropIndicatorLocation: CGFloat? = nil
+    
+    // Add .continuous for more responsive tracking
+    @GestureState private var dragLocation: CGPoint = .zero
+    
+    @State private var exportInProgress = false
     
     // MARK: - Methods
     
     private func clearSelection() {
         draggedArticle = nil
         draggedPageNumber = nil
+        draggedPages = nil
+        isDragging = false
+        dropTargetPageNumber = nil
+        dropIndicatorLocation = nil
+    }
+    
+    private func handleDrop(at pageNumber: Int) {
+        guard let articleName = draggedArticle else { return }
+        
+        var updatedLayout = layout
+        if updatedLayout.moveArticle(articleName, toStartPage: pageNumber) {
+            // TODO: Notify PublicationManager about the change
+            Task {
+                await manager.refreshLayouts()
+            }
+        }
+        
+        clearSelection()
+    }
+    
+    private func updateMouseLocation(_ location: CGPoint) {
+        mouseLocation = location
+        // Módosítjuk az előnézet pozícióját, hogy jobb alul kezdődjön
+        dropLocation = CGPoint(x: location.x + 20, y: location.y + 20)
+    }
+    
+    private func updateDropIndicator(at location: CGPoint, in geometry: GeometryProxy) {
+        // Calculate position relative to the scrollview content
+        let relativePosition = CGPoint(
+            x: location.x - geometry.frame(in: .global).minX,
+            y: location.y - geometry.frame(in: .global).minY
+        )
+        
+        // Find nearest valid drop position
+        let rowIndex = Int(relativePosition.y / (defaultPageSize.height * pdfScale + 20))
+        let columnIndex = Int(relativePosition.x / (defaultPageSize.width * pdfScale * 2 + 20))
+        
+        if columnIndex >= 0 && columnIndex < 5 {
+            dropIndicatorLocation = CGFloat(columnIndex) * (defaultPageSize.width * pdfScale * 2 + 20)
+        }
+    }
+    
+    private func onDragStarted(page: Layout.Page) {
+        if isEditMode {
+            draggedArticle = page.articleName
+            draggedPageNumber = page.pageNumber
+            draggedPages = layout.pages.filter { $0.articleName == page.articleName }
+            isDragging = true
+            // Initialize the drop location to the mouse position
+            updateMouseLocation(mouseLocation)
+        }
     }
     
     // MARK: - Computed Properties
@@ -72,9 +133,7 @@ struct LayoutView: View {
         return pairs
     }
     
-    private var rowCount: Int {
-        Int(ceil(Double(pagePairs.count) / 5))
-    }
+    private let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 20), count: 5)
     
     private func createPagePairView(for pair: (leftNumber: Int, rightNumber: Int, left: Layout.Page?, right: Layout.Page?)) -> some View {
         PagePairView(
@@ -90,188 +149,328 @@ struct LayoutView: View {
                 if isEditMode {
                     draggedArticle = page.articleName
                     draggedPageNumber = page.pageNumber
+                    draggedPages = layout.pages.filter { $0.articleName == page.articleName }
+                    isDragging = true
+                    // Initialize the drop location to the mouse position
+                    updateMouseLocation(mouseLocation)
                 }
             },
-            maxPageNumber: effectiveMaxPageNumber
+            maxPageNumber: effectiveMaxPageNumber,
+            handleDrop: handleDrop,
+            onHover: { isTargeted, pageNumber in
+                if isTargeted {
+                    dropTargetPageNumber = pageNumber
+                } else {
+                    dropTargetPageNumber = nil
+                }
+            }
+        )
+    }
+
+    private func createPageView(
+        page: Layout.Page?,
+        pageNumber: Int,
+        isDragging: Bool
+    ) -> some View {
+        PageView(
+            page: page,
+            scale: pdfScale,
+            defaultSize: defaultPageSize,
+            isDragging: isDragging,
+            onDragStarted: onDragStarted,
+            pageNumber: pageNumber,
+            isEditMode: isEditMode,
+            maxPageNumber: effectiveMaxPageNumber,
+            onDrop: handleDrop,
+            onHover: { isTargeted, pageNumber in
+                if isTargeted {
+                    dropTargetPageNumber = pageNumber
+                } else {
+                    dropTargetPageNumber = nil
+                }
+            }
+        )
+        .gesture(
+            DragGesture(minimumDistance: 0, coordinateSpace: .global)
+                .onChanged { value in
+                    if isDragging {
+                        updateMouseLocation(value.location)
+                    }
+                }
+                .onEnded { _ in
+                    if isDragging, let targetPage = dropTargetPageNumber {
+                        handleDrop(at: targetPage)
+                    }
+                }
         )
     }
     
-    // MARK: - Subviews
-    
-    /// Egy oldalpár megjelenítése
-    private struct PagePairView: View {
-        let leftNumber: Int
-        let rightNumber: Int
-        let leftPage: Layout.Page?
-        let rightPage: Layout.Page?
-        let scale: CGFloat
-        let defaultSize: CGSize
-        let draggedArticle: String?
-        let isEditMode: Bool
-        let onDragStarted: (Layout.Page) -> Void
-        let maxPageNumber: Int
+    /// Kirajzolja az oldalszámokat az oldalpár alá
+    private func drawPageNumbers(leftNumber: Int, rightNumber: Int, x: CGFloat, y: CGFloat, pairWidth: CGFloat) {
+        let font = NSFont.systemFont(ofSize: 20 * pdfScale)
+        let textAttributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.black
+        ]
         
-        var body: some View {
-            VStack(spacing: 2) {
-                HStack(spacing: 0) {
-                    // Bal oldal
-                    if leftNumber > 0 {
-                        PageView(
-                            page: leftPage,
-                            scale: scale,
-                            defaultSize: defaultSize,
-                            isDragging: leftPage.map { draggedArticle == $0.articleName } ?? false,
-                            onDragStarted: onDragStarted,
-                            pageNumber: leftNumber,
-                            isEditMode: isEditMode,
-                            maxPageNumber: maxPageNumber
-                        )
-                        .scrollDisabled(true)
-                    } else {
-                        BlankPageView(scale: scale, defaultSize: defaultSize)
-                    }
-                    
-                    // Jobb oldal
-                    if rightNumber <= maxPageNumber {
-                        PageView(
-                            page: rightPage,
-                            scale: scale,
-                            defaultSize: defaultSize,
-                            isDragging: rightPage.map { draggedArticle == $0.articleName } ?? false,
-                            onDragStarted: onDragStarted,
-                            pageNumber: rightNumber,
-                            isEditMode: isEditMode,
-                            maxPageNumber: maxPageNumber
-                        )
-                        .scrollDisabled(true)
-                    } else {
-                        BlankPageView(scale: scale, defaultSize: defaultSize)
-                    }
-                }
-                .frame(width: defaultSize.width * scale * 2, height: defaultSize.height * scale)
-                
-                // Oldalszámok külön sorban
-                HStack(spacing: 0) {
-                    Text("\(leftNumber)")
-                        .font(.system(size: 8))
-                        .foregroundColor(.gray)
-                        .frame(width: defaultSize.width * scale, alignment: .leading)
-                        .padding(.leading, 4)
-                        .opacity(leftNumber > 0 ? 1 : 0)
-                    
-                    Text("\(rightNumber <= maxPageNumber ? String(rightNumber) : "")")
-                        .font(.system(size: 8))
-                        .foregroundColor(.gray)
-                        .frame(width: defaultSize.width * scale, alignment: .trailing)
-                        .padding(.trailing, 4)
-                        .opacity(rightNumber > 0 ? 1 : 0)
-                }
-            }
-        }
-    }
-    
-    /// Üres oldal
-    private struct BlankPageView: View {
-        let scale: CGFloat
-        let defaultSize: CGSize
-        var body: some View {
-            Color.clear
-                .frame(width: defaultSize.width * scale, height: defaultSize.height * scale)
-        }
-    }
-    
-    private struct PageView: View {
-        @EnvironmentObject var manager: PublicationManager
-        
-        let page: Layout.Page?
-        let scale: CGFloat
-        let defaultSize: CGSize
-        let isDragging: Bool
-        let onDragStarted: (Layout.Page) -> Void
-        let pageNumber: Int
-        let isEditMode: Bool
-        let maxPageNumber: Int
-        
-        // Check if PDF is from the PDF workflow folder
-        private var isPDFFromWorkflow: Bool {
-            guard let page = page,
-                  let pdfFolder = manager.publication?.pdfFolder else { return true }
-            return page.pdfSource.isSubfolder(of: pdfFolder)
-        }
-        
-        var body: some View {
-            Group {
-                if let page = page {
-                    LazyLoadingView(
-                        pdfPage: page.pdfDocument.page(at: 0)!,
-                        displayBox: .trimBox,
-                        scale: scale
-                    )
-                    .frame(
-                        width: defaultSize.width * scale,
-                        height: defaultSize.height * scale
-                    )
-                    .background(Color.white)
-                    .opacity(isDragging ? 0.7 : 1.0)
-                    .onTapGesture {
-                        if isEditMode {
-                            onDragStarted(page)
-                        }
-                    }
-                    .overlay(isDragging && isEditMode ? Color.blue.opacity(0.3) : Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 0)
-                            .stroke(isPDFFromWorkflow ? Color.clear : Color.red, lineWidth: 2)
-                            .allowsHitTesting(false)
-                    )
-                } else if pageNumber > 0 && pageNumber <= maxPageNumber {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(
-                            width: defaultSize.width * scale,
-                            height: defaultSize.height * scale
-                        )
-                        .overlay(
-                            Text("\(pageNumber)")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray.opacity(0.3))
-                        )
-                }
-            }
-            .frame(
-                width: defaultSize.width * scale,
-                height: defaultSize.height * scale,
-                alignment: .center
+        // Bal oldalszám
+        if leftNumber > 0 {
+            let text = NSString(string: String(leftNumber))
+            text.draw(
+                at: NSPoint(x: x + 10 * pdfScale, y: y - 40 * pdfScale),
+                withAttributes: textAttributes
             )
-            .clipped()
+        }
+        
+        // Jobb oldalszám
+        if rightNumber > 0 {
+            let text = NSString(string: String(rightNumber))
+            let size = text.size(withAttributes: textAttributes)
+            text.draw(
+                at: NSPoint(x: x + pairWidth - size.width - 10 * pdfScale, y: y - 40 * pdfScale),
+                withAttributes: textAttributes
+            )
+        }
+    }
+    
+    private func exportCurrentView() async {
+        guard let publication = manager.publication else { return }
+        
+        // Kiszámoljuk a teljes méreteket
+        let spacing = 100.0 * pdfScale
+        let rowCount = Int(ceil(Double(pagePairs.count) / 5))
+        let pairWidth = defaultPageSize.width * pdfScale * 2
+        let pairHeight = defaultPageSize.height * pdfScale
+        
+        // A teljes méret az összes sorral, spacing-gel és padding-gal
+        let totalWidth = spacing + (pairWidth + spacing) * 5 + spacing
+        let totalHeight = spacing + (pairHeight + spacing + 20 * pdfScale) * CGFloat(rowCount) + spacing // Extra hely az oldalszámoknak
+        
+        // Létrehozunk egy megfelelő méretű képet
+        let image = NSImage(size: NSSize(width: totalWidth, height: totalHeight))
+        image.lockFocus()
+        
+        // Fehér háttér
+        NSColor.white.setFill()
+        NSRect(x: 0, y: 0, width: totalWidth, height: totalHeight).fill()
+        
+        // Kirajzoljuk az összes oldalpárt
+        for (index, pair) in pagePairs.enumerated() {
+            let row = index / 5
+            let col = index % 5
+            
+            let x = spacing + CGFloat(col) * (pairWidth + spacing)
+            let y = totalHeight - spacing - (CGFloat(row + 1) * (pairHeight + spacing + 20 * pdfScale))
+            
+            // Oldalpár fekete kerete
+            let pairRect = NSRect(
+                x: x,
+                y: y,
+                width: pairWidth,
+                height: pairHeight
+            )
+            NSColor.black.withAlphaComponent(0.3).setStroke()
+            let borderPath = NSBezierPath(rect: pairRect)
+            borderPath.lineWidth = 0.5 * pdfScale
+            borderPath.stroke()
+            
+            // Oldalszámok kirajzolása
+            drawPageNumbers(
+                leftNumber: pair.leftNumber,
+                rightNumber: pair.rightNumber,
+                x: x,
+                y: y,
+                pairWidth: pairWidth
+            )
+            
+            // Bal oldal
+            let leftRect = NSRect(
+                x: x,
+                y: y,
+                width: defaultPageSize.width * pdfScale,
+                height: pairHeight
+            )
+            
+            if let leftPage = pair.left?.pdfDocument.page(at: 0) {
+                NSGraphicsContext.current?.cgContext.saveGState()
+                NSGraphicsContext.current?.cgContext.translateBy(x: x, y: y)
+                NSGraphicsContext.current?.cgContext.scaleBy(x: pdfScale, y: pdfScale)
+                leftPage.draw(with: .trimBox, to: NSGraphicsContext.current!.cgContext)
+                NSGraphicsContext.current?.cgContext.restoreGState()
+                
+                // Piros keret ha kell
+                drawRedBorder(at: leftRect,
+                             isPDFFromWorkflow: pair.left?.pdfSource.isSubfolder(of: publication.pdfFolder) ?? true)
+            } else if pair.leftNumber > 0 && pair.leftNumber <= effectiveMaxPageNumber {
+                NSColor.gray.withAlphaComponent(0.1).setFill()
+                leftRect.fill()
+                drawPageNumber(pair.leftNumber, at: leftRect)
+            }
+            
+            // Jobb oldal
+            let rightRect = NSRect(
+                x: x + defaultPageSize.width * pdfScale,
+                y: y,
+                width: defaultPageSize.width * pdfScale,
+                height: pairHeight
+            )
+            
+            if let rightPage = pair.right?.pdfDocument.page(at: 0) {
+                NSGraphicsContext.current?.cgContext.saveGState()
+                NSGraphicsContext.current?.cgContext.translateBy(x: x + defaultPageSize.width * pdfScale, y: y)
+                NSGraphicsContext.current?.cgContext.scaleBy(x: pdfScale, y: pdfScale)
+                rightPage.draw(with: .trimBox, to: NSGraphicsContext.current!.cgContext)
+                NSGraphicsContext.current?.cgContext.restoreGState()
+                
+                // Piros keret ha kell
+                drawRedBorder(at: rightRect,
+                             isPDFFromWorkflow: pair.right?.pdfSource.isSubfolder(of: publication.pdfFolder) ?? true)
+            } else if pair.rightNumber > 0 && pair.rightNumber <= effectiveMaxPageNumber {
+                NSColor.gray.withAlphaComponent(0.1).setFill()
+                rightRect.fill()
+                drawPageNumber(pair.rightNumber, at: rightRect)
+            }
+        }
+        
+        image.unlockFocus()
+        
+        // JPG fájl mentése
+        // TODO: fájlelnevezés rendbetétele
+        let fileName = "\(manager.publication!.name) –  layout"
+        let fileURL = publication.baseFolder.appendingPathComponent(fileName).appendingPathExtension("jpg")
+        
+        if let imageData = image.tiffRepresentation,
+           let bitmap = NSBitmapImageRep(data: imageData),
+           let jpgData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
+            try? jpgData.write(to: fileURL)
+            NSWorkspace.shared.activateFileViewerSelecting([fileURL])
+        }
+    }
+    
+    /// Rajzol egy nagyméretű oldalszámot a megadott helyre
+    private func drawPageNumber(_ number: Int, at rect: NSRect) {
+        let text = NSString(string: String(number))
+        let font = NSFont.systemFont(ofSize: 60 * pdfScale)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.gray.withAlphaComponent(0.3)
+        ]
+        
+        let size = text.size(withAttributes: attributes)
+        let x = rect.minX + (rect.width - size.width) / 2
+        let y = rect.minY + (rect.height - size.height) / 2
+        
+        text.draw(at: NSPoint(x: x, y: y), withAttributes: attributes)
+    }
+    
+    /// Rajzol egy piros keretet a megadott területre
+    private func drawRedBorder(at rect: NSRect, isPDFFromWorkflow: Bool = false) {
+        if !isPDFFromWorkflow {
+            NSColor.red.setStroke()
+            let path = NSBezierPath(rect: rect)
+            path.lineWidth = 2.0 * pdfScale
+            path.stroke()
         }
     }
     
     var body: some View {
-        ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 20) {
-                ForEach(0..<rowCount, id: \.self) { rowIndex in
-                    HStack(spacing: 20) {
-                        ForEach(0..<5, id: \.self) { pairIndex in
-                            let pairOffset = rowIndex * 5 + pairIndex
-                            if pairOffset < pagePairs.count {
-                                createPagePairView(for: pagePairs[pairOffset])
-                            }
+        let spacing = 20 * pdfScale
+        GeometryReader { geometry in
+            ScrollView([.horizontal, .vertical]) {
+                ZStack(alignment: .topLeading) {
+                    LazyVGrid(columns: columns, spacing: spacing) {
+                        ForEach(pagePairs.indices, id: \.self) { index in
+                            createPagePairView(for: pagePairs[index])
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
+                    .padding()
+                    
+                    // Preview with white background
+                    if isDragging,
+                       let pages = draggedPages {
+                        HStack(spacing: 4) {
+                            ForEach(pages, id: \.pageNumber) { page in
+                                PDFPageRendererView(
+                                    pdfPage: page.pdfDocument.page(at: 0)!,
+                                    displayBox: .trimBox,
+                                    scale: pdfScale * 0.5
+                                )
+                                .frame(
+                                    width: defaultPageSize.width * pdfScale * 0.5,
+                                    height: defaultPageSize.height * pdfScale * 0.5
+                                )
+                            }
+                        }
+                        .background(Color.white.opacity(0.7))
+                        .position(dropLocation)
+                    }
+                    
+                    // Drop indicator with higher opacity
+                    if let dropLocation = dropIndicatorLocation,
+                       isDragging {
+                        Rectangle()
+                            .fill(Color.blue.opacity(0.8))
+                            .frame(width: 4)  // Make it slightly thicker
+                            .frame(height: geometry.size.height)
+                            .position(x: dropLocation, y: geometry.size.height / 2)
+                            .animation(.easeInOut(duration: 0.2), value: dropLocation)
+                    }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .global)
+                        .onChanged { value in
+                            if isDragging {
+                                updateMouseLocation(value.location)
+                                updateDropIndicator(at: value.location, in: geometry)
+                            }
+                        }
+                        .onEnded { _ in
+                            if isDragging, let targetPage = dropTargetPageNumber {
+                                handleDrop(at: targetPage)
+                            }
+                            dropIndicatorLocation = nil
+                        }
+                )
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    clearSelection()
+                }
+                .onChange(of: isEditMode) { _, newValue in
+                    if !newValue {
+                        clearSelection()
+                    }
                 }
             }
-            .padding()
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
+        // Add keyboard handling for Esc key
+        .onKeyPress(.escape) {
             clearSelection()
+            return .handled
         }
-        .onChange(of: isEditMode) { _, newValue in
-            if !newValue {
-                clearSelection()
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                // Previous toolbar items remain the same
+                
+                // Add separator
+                Divider()
+                
+                // Export button
+                Button {
+                    exportInProgress = true
+                    Task {
+                        await exportCurrentView()
+                        exportInProgress = false
+                    }
+                } label: {
+                    if exportInProgress {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: "photo")
+                    }
+                }
+                .help("Exportálás JPG formátumba")
+                .disabled(exportInProgress)
             }
         }
     }

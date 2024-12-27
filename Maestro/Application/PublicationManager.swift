@@ -81,26 +81,23 @@ class PublicationManager: ObservableObject {
             return
         }
         
+        // Csoportosítja a cikkeket oldalszám átfedés alapján
+        let conflictGroups = groupConflictingArticles(conflictingArticles)
+        let combinations = generateCombinations(from: conflictGroups)
+        
         var allLayouts = Set<Layout>()
         
         // Az ütköző cikkek minden lehetséges sorrendjét kipróbáljuk
         await withTaskGroup(of: Layout?.self) { group in
-            let baseLayoutCopy = baseLayout
-            
-            // Minden permutációt végigpróbálunk
-            for permutation in conflictingArticles.permutations() {
+            for combination in combinations {
                 group.addTask {
-                    var layout = baseLayoutCopy
-                    
-                    // Minden cikket megpróbálunk hozzáadni a layout-hoz
-                    for article in permutation {
-                        // Ha sikerül hozzáadni, elmentjük ezt a részleges layout-ot
-                        if layout.add(article) {
-                            return layout
+                    var layout = baseLayout
+                    for article in combination {
+                        if !layout.add(article) {
+                            return nil
                         }
                     }
-                    
-                    return nil
+                    return layout
                 }
             }
             
@@ -118,6 +115,46 @@ class PublicationManager: ObservableObject {
         }
         
         self.layouts = allLayouts
+    }
+    
+    /// Csoportosítja a cikkeket oldalszám átfedés alapján
+    private func groupConflictingArticles(_ articles: [Article]) -> [[Article]] {
+        var groups: [[Article]] = []
+        var remainingArticles = articles
+        
+        while !remainingArticles.isEmpty {
+            let article = remainingArticles.removeFirst()
+            var group = [article]
+            
+            // Megkeressük az összes cikket, ami átfed a csoport bármelyik cikkével
+            var i = 0
+            while i < remainingArticles.count {
+                if group.contains(where: { remainingArticles[i].overlaps(with: $0) }) {
+                    group.append(remainingArticles.remove(at: i))
+                } else {
+                    i += 1
+                }
+            }
+            
+            groups.append(group)
+        }
+        
+        return groups
+    }
+    
+    /// Generálja az összes lehetséges kombinációt a cikkcsoportokból
+    private func generateCombinations(from groups: [[Article]]) -> [[Article]] {
+        // Ha nincs csoport, üres tömböt adunk vissza
+        guard !groups.isEmpty else { return [[]] }
+        
+        // Használjuk a cartesianProduct függvényt a Swift Algorithms-ból
+        return groups.reduce([[]]) { result, group in
+            result.flatMap { combination in
+                group.map { article in
+                    combination + [article]
+                }
+            }
+        }
     }
     
     /// Szétválasztja a cikkeket ütkö és nem ütköző csoportokra

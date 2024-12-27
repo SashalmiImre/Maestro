@@ -10,8 +10,8 @@ struct LayoutsView: View {
     
     // Grouped related state variables
     private struct ZoomSettings {
-        static let range = 0.1...1.0
-        static let step = 0.15
+        static let range = 0.1...2.0
+        static let step = 0.2
         static let initial = 0.2
     }
     
