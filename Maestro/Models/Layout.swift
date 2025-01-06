@@ -10,8 +10,41 @@ struct Layout: Equatable, Hashable {
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
     private var articles: [Article] = []
     
-    // Article áthelyezések követése
-    private var pageChanges: [PageChange] = []
+    /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
+    /// - Returns: `true` ha a layout üres, `false` ha tartalmaz cikkeket
+    var isEmpty: Bool {
+        articles.isEmpty
+    }
+    
+    /// Az összes oldal lekérése rendezett formában.
+    /// A visszaadott tömb tartalmazza az összes oldal részletes információit,
+    /// oldalszám szerint növekvő sorrendben.
+    /// - Returns: Az oldalak tömbje, oldalszám szerint rendezve
+    var pages: [Page] {
+        articles
+            .flatMap { $0.pages }
+            .sorted { $0.pageNumber < $1.pageNumber }
+    }
+    
+    /// A legnagyobb oldalszám, ami a layoutban szereplő cikkek között előfordul.
+    /// Ez az érték a cikkek coverage property-jének upperBound értékeiből számolódik.
+    /// - Returns: A legnagyobb oldalszám, vagy 0 ha nincs cikk a layoutban
+    var maxPageNumber: Int {
+        articles
+            .map { $0.coverage.upperBound }
+            .max() ?? 0
+    }
+    
+    /// Kiszámolja a layoutban szereplő összes oldalszámot.
+    /// Ez a szám megmutatja, hogy hány oldalt foglalnak el a cikkek összesen.
+    /// - Returns: A cikkek által lefedett oldalak száma
+    var pageCount: Int {
+        // Mivel nincs átfedés a cikkek oldalai között, egyszerűen
+        // összegezzük a cikkek által lefedett oldalak számát
+        articles.reduce(0) { count, article in
+            count + article.coverage.count
+        }
+    }
     
     /// Megpróbál hozzáadni egy új cikket a layouthoz.
     /// A metódus ellenőrzi, hogy van-e oldalszám-ütközés a már meglévő cikkekkel.
@@ -26,7 +59,7 @@ struct Layout: Equatable, Hashable {
         // Az Article.overlaps metódusával ellenőrizzük, hogy van-e ütközés
         // bármely már meglévő cikkel
         let hasNoConflict = !articles.contains { $0.overlaps(with: article) }
-
+        
         // Csak akkor adjuk hozzá a cikket, ha nincs ütközés
         if hasNoConflict {
             articles.append(article)
@@ -36,103 +69,49 @@ struct Layout: Equatable, Hashable {
         return false
     }
     
-    /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
-    /// - Returns: `true` ha a layout üres, `false` ha tartalmaz cikkeket
-    var isEmpty: Bool {
-        articles.isEmpty
-    }
-    
-    /// Kiszámolja a layoutban szereplő összes oldalszámot.
-    /// Ez a szám megmutatja, hogy hány oldalt foglalnak el a cikkek összesen.
-    /// - Returns: A cikkek által lefedett oldalak száma
-    var pageCount: Int {
-        // Mivel nincs átfedés a cikkek oldalai között, egyszerűen
-        // összegezzük a cikkek által lefedett oldalak számát
-        articles.reduce(0) { count, article in
-            count + article.coverage.count
+    /// A layout oldalaiból létrehozott PagePair objektumok tömbje.
+    /// Az oldalak párosítása a következő szabályok szerint történik:
+    /// - A páros oldalak balra kerülnek
+    /// - A páratlan oldalak jobbra kerülnek
+    /// - Az oldalaknak egymás után kell következniük
+    /// - Minden oldal létezik, üres oldalak is létrehozásra kerülnek
+    func pagePairs(maxPageCount: Int) -> [PagePair] {
+        let orderedPages = pages
+        
+        // Használjuk a maxPageCount értéket a teljes oldalszám meghatározásához
+        // Ha a maxPageCount páratlan, akkor eggyel növeljük, hogy teljes oldalpárokat kapjunk
+        let adjustedMaxPageCount = maxPageCount + (maxPageCount % 2)
+        
+        // Create a dictionary from existing pages for quick lookup
+        let pageDict = Dictionary(uniqueKeysWithValues: orderedPages.map { ($0.pageNumber, $0) })
+        
+        // Create PagePairs from the total page range, using the adjusted max page count
+        let pairs = stride(from: 0, to: adjustedMaxPageCount, by: 2).map { index -> PagePair in
+            let leftPage = pageDict[index] ?? Page(article: nil, pageNumber: index, pdfPage: nil)
+            let rightPage = pageDict[index + 1] ?? Page(article: nil, pageNumber: index + 1, pdfPage: nil)
+            return PagePair(leftPage: leftPage, rightPage: rightPage)
         }
+        
+        return pairs
     }
     
-    /// Az összes oldal lekérése rendezett formában.
-    /// A visszaadott tömb tartalmazza az összes oldal részletes információit,
-    /// oldalszám szerint növekvő sorrendben.
-    /// - Returns: Az oldalak tömbje, oldalszám szerint rendezve
-    var pages: [Page] {
-        var pages: [Page] = []
-        // Végigmegyünk minden cikken és annak minden oldalán
-        for article in articles {
-            for (pageNumber, pdfDocument) in article.pages {
-                pages.append(Page(
-                    articleName: article.name,
-                    pageNumber: pageNumber,
-                    pdfDocument: pdfDocument,
-                    pdfSource: article.pdfSource
-                ))
+    func maxPageSize(for displayBox: PDFDisplayBox) -> NSRect {
+        var maxSize = NSRect.zero
+        
+        for page in pages {
+            if let pdfPage = page.pdfPage?.page(at: 0) {
+                let bounds = pdfPage.bounds(for: displayBox)
+                maxSize.size.width = max(maxSize.size.width, bounds.width)
+                maxSize.size.height = max(maxSize.size.height, bounds.height)
             }
         }
-        // Az oldalakat oldalszám szerint rendezzük
-        return pages.sorted { $0.pageNumber < $1.pageNumber }
-    }
-    
-    /// Egy konkrét oldal reprezentációja a layoutban.
-    /// Tartalmazza az oldal minden szükséges adatát:
-    /// a cikk nevét, az oldalszámot és a PDF dokumentumot.
-    struct Page {
-        /// A cikk neve, amihez az oldal tartozik
-        let articleName: String
-        /// Az oldal száma a kiadványban
-        let pageNumber: Int
-        /// Az oldalhoz tartozó PDF dokumentum
-        let pdfDocument: PDFDocument
-        /// Az oldalhoz tartozó PDF forrás URL
-        let pdfSource: URL
-    }
-    
-    /// Új metódus az áthelyezés rögzítésére
-    mutating func moveArticle(_ articleName: String, toStartPage newStart: Int) -> Bool {
-        guard let articleIndex = articles.firstIndex(where: { $0.name == articleName }),
-              let originalStart = articles[articleIndex].coverage.first else {
-            return false
-        }
         
-        // Ellenőrizzük a párosság feltételét
-        let isOriginalEven = originalStart % 2 == 0
-        let isNewEven = newStart % 2 == 0
-        if isOriginalEven != isNewEven {
-            return false
-        }
-        
-        // Rögzítjük a változást
-        pageChanges.append(PageChange(
-            articleName: articleName,
-            originalStart: originalStart,
-            newStart: newStart
-        ))
-        return true
-    }
-    
-    /// Új getter a változások lekérdezéséhez
-    var articleMovements: [PageChange] {
-        pageChanges
-    }
-    
-    struct PageChange: Equatable, Hashable {
-        let articleName: String
-        let originalStart: Int
-        let newStart: Int
+        return maxSize == .zero ? NSRect(x: 0, y: 0, width: 595, height: 842) : maxSize
     }
     
     // MARK: - Equatable Implementation
     
     static func == (lhs: Layout, rhs: Layout) -> Bool {
-        lhs.articles == rhs.articles &&
-        lhs.pageChanges == rhs.pageChanges
-    }
-    
-    // MARK: - Hashable Implementation
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(articles)
-        hasher.combine(pageChanges)
+        lhs.articles == rhs.articles
     }
 }

@@ -10,6 +10,8 @@ import PDFKit
 
 /// A PDFPage lusta betöltését és cache-elését végző nézet
 struct PDFPageRendererView: View {
+    @EnvironmentObject var manager: PublicationManager
+    
     // MARK: - Properties
     
     @State private var isLoading: Bool = true
@@ -23,12 +25,12 @@ struct PDFPageRendererView: View {
     
     var pdfPage: PDFPage
     var displayBox: PDFDisplayBox = .trimBox
-    var scale: CGFloat
     
     // Cache-eljük a méreteket
     private var pageSize: CGSize {
         let bounds = pdfPage.bounds(for: displayBox)
-        return CGSize(width: bounds.width * scale, height: bounds.height * scale)
+        return CGSize(width: bounds.width * manager.zoomLevel,
+                      height: bounds.height * manager.zoomLevel)
     }
     
     // MARK: - Body
@@ -54,7 +56,7 @@ struct PDFPageRendererView: View {
         .task {
             await renderImage()
         }
-        .onChange(of: scale) { oldScale, newScale in
+        .onChange(of: manager.zoomLevel) { oldScale, newScale in
             // Mentsük el az előző képet
             previousImage = pageImage
             // Cancel any ongoing rendering
@@ -74,7 +76,7 @@ struct PDFPageRendererView: View {
     
     @MainActor
     private func renderImage() async {
-        let key = "\(pdfPage.hash)_\(scale)_\(displayBox.rawValue)" as NSString
+        let key = "\(pdfPage.hash)_\(manager.zoomLevel)_\(displayBox.rawValue)" as NSString
         
         // Check cache on MainActor
         if let cachedImage = PDFPageRendererView.cache.object(forKey: key) {
@@ -87,7 +89,9 @@ struct PDFPageRendererView: View {
             try await Task.sleep(for: .milliseconds(50))  // Small delay for smoother transitions
             
             let bounds = pdfPage.bounds(for: displayBox)
-            let size = CGSize(width: bounds.width * scale, height: bounds.height * scale)
+            let size = CGSize(width: bounds.width * manager.zoomLevel,
+                              height: bounds.height * manager.zoomLevel)
+            let scale = manager.zoomLevel
             
             // Render in background using CGImage
             let cgImage = try await Task.detached(priority: .userInitiated) { () -> CGImage in

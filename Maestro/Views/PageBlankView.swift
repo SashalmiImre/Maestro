@@ -13,6 +13,5 @@ struct PageBlankView: View {
     let defaultSize: CGSize
     var body: some View {
         Color.clear
-            .frame(width: defaultSize.width * scale, height: defaultSize.height * scale)
     }
 }

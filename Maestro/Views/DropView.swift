@@ -62,7 +62,7 @@ struct DropView: View {
                 do {
                     let pub = try await Publication(folderURL: url)
                     manager.publication = pub
-                    await manager.refreshLayouts()
+                    await manager.refresh()
                 } catch {
                     self.error = DropView.Errors.failedToCreatePublication
                 }

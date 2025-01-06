@@ -3,39 +3,4 @@
    uuid = "F05F551F-0D89-4DF8-A7BB-58F4268510D6"
    type = "1"
    version = "2.0">
-   <Breakpoints>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "ACBF422F-48AD-4635-9D76-0957D08F655C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Maestro/Models/Article.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "50"
-            endingLineNumber = "50"
-            landmarkName = "init?(inddFile:availablePDFs:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B88F7DDA-1CB7-4657-90D7-E76CA37370AF"
-            shouldBeEnabled = "Yes"
-            condition = "inddFile.description == &quot;file:///Users/sashalmiimre/Downloads/2025_02%20szam/__TORDELVE/S%2038%2039%20E_gasztro_zD_horoszkop%20D.indd&quot;"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Maestro/Models/Article.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "45"
-            endingLineNumber = "45"
-            landmarkName = "init?(inddFile:availablePDFs:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-   </Breakpoints>
 </Bucket>
