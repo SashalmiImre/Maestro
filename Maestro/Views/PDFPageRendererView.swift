@@ -56,7 +56,7 @@ struct PDFPageRendererView: View {
         .task {
             await renderImage()
         }
-        .onChange(of: manager.zoomLevel) { oldScale, newScale in
+        .onChange(of: manager.zoomLevel) { newScale in
             // Mentsük el az előző képet
             previousImage = pageImage
             // Cancel any ongoing rendering

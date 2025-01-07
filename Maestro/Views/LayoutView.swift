@@ -203,7 +203,7 @@ struct LayoutView: View {
             .onTapGesture {
                 // clearSelection()
             }
-            .onChange(of: manager.isEditMode) { _, newValue in
+            .onChange(of: manager.isEditMode) { newValue in
                 if !newValue {
                     // clearSelection()
                 }

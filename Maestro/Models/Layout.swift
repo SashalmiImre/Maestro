@@ -76,25 +76,26 @@ struct Layout: Equatable, Hashable {
     /// - Az oldalaknak egymás után kell következniük
     /// - Minden oldal létezik, üres oldalak is létrehozásra kerülnek
     func pagePairs(maxPageCount: Int) -> [PagePair] {
-        let orderedPages = pages
+        // Az oldalak dictionary-je a gyors kereséshez
+        let pageDict = Dictionary(uniqueKeysWithValues: pages.map { ($0.pageNumber, $0) })
         
-        // Használjuk a maxPageCount értéket a teljes oldalszám meghatározásához
-        // Ha a maxPageCount páratlan, akkor eggyel növeljük, hogy teljes oldalpárokat kapjunk
-        let adjustedMaxPageCount = maxPageCount + (maxPageCount % 2)
+        // Biztosítjuk, hogy a maximális oldalszám páros legyen
+        let adjustedMaxCount = maxPageCount + (maxPageCount.isMultiple(of: 2) ? 0 : 1)
         
-        // Create a dictionary from existing pages for quick lookup
-        let pageDict = Dictionary(uniqueKeysWithValues: orderedPages.map { ($0.pageNumber, $0) })
-        
-        // Create PagePairs from the total page range, using the adjusted max page count
-        let pairs = stride(from: 0, to: adjustedMaxPageCount, by: 2).map { index -> PagePair in
-            let leftPage = pageDict[index] ?? Page(article: nil, pageNumber: index, pdfPage: nil)
-            let rightPage = pageDict[index + 1] ?? Page(article: nil, pageNumber: index + 1, pdfPage: nil)
-            return PagePair(leftPage: leftPage, rightPage: rightPage)
-        }
-        
-        return pairs
+        // Range létrehozása és átalakítása oldalpárokká
+        return (0...adjustedMaxCount)
+            .filter { $0.isMultiple(of: 2) }
+            .map { startIndex -> PagePair in
+                // Létrehozzuk a bal és jobb oldalt reprezentáló Page objektumokat
+                let leftPage = pageDict[startIndex] ??
+                    Page(article: nil, pageNumber: startIndex, pdfPage: nil)
+                let rightPage = pageDict[startIndex + 1] ??
+                    Page(article: nil, pageNumber: startIndex + 1, pdfPage: nil)
+                
+                return PagePair(leftPage: leftPage, rightPage: rightPage)
+            }
     }
-    
+
     func maxPageSize(for displayBox: PDFDisplayBox) -> NSRect {
         var maxSize = NSRect.zero
         

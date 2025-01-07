@@ -17,7 +17,7 @@ class PublicationManager: ObservableObject {
     
     @Published var publication: Publication?
     @Published private(set) var layouts: Set<Layout> = .init()
-    @Published var selectedLayout: Layout?
+    @Published var selectedLayoutIndex: Int = 0
     @Published var maxPageNumber: Int = 8
     @Published var zoomLevel: Double = ZoomSettings.initial
     @Published var isEditMode: Bool = false
@@ -25,8 +25,8 @@ class PublicationManager: ObservableObject {
 
     // MARK: - Private Properties
     
-    private(set) var availablePDFs: [URL] = []
-    private(set) var availableInddFiles: [URL] = []
+    private var availablePDFs: [URL] = []
+    private var availableInddFiles: [URL] = []
     
     // MARK: - Initialization
     
@@ -52,12 +52,16 @@ class PublicationManager: ObservableObject {
         return innerPages + coverPageCount
     }
     
+    var selectedLayout: Layout? {
+        Array(layouts)[safe: selectedLayoutIndex]
+    }
+    
     
     // MARK: - Refresh/reset
 
     private func reset() {
         layouts.removeAll()
-        selectedLayout = nil
+        selectedLayoutIndex = 0
         publication?.articles.removeAll()
         availablePDFs = []
         availableInddFiles = []
@@ -136,14 +140,24 @@ class PublicationManager: ObservableObject {
         // Ha nincs csoport, üres tömböt adunk vissza
         guard !groups.isEmpty else { return .init() }
         
-        // Használjuk a cartesianProduct függvényt a Swift Algorithms-ból
-        return groups.reduce(Array<Array<Article>>()) { result, group in
-            result.flatMap { combination in
+        // Ha csak egy csoport van, visszaadjuk annak elemeit külön-külön tömbökben
+        if groups.count == 1 {
+            return groups[0].map { [$0] }
+        }
+        
+        // Kezdeti eredmény az első csoport elemeiből
+        var result = groups[0].map { [$0] }
+        
+        // A többi csoportot egyesével kombináljuk az eddigi eredménnyel
+        for group in groups.dropFirst() {
+            result = result.flatMap { combination in
                 group.map { article in
                     combination + [article]
                 }
             }
         }
+        
+        return result
     }
     
     /// Szétválasztja a cikkeket ütköző és nem ütköző csoportokra
@@ -199,7 +213,7 @@ class PublicationManager: ObservableObject {
         
         // Ha nincs ütköző cikk, nincs szükség további variációk generálására
         if conflictingArticles.isEmpty {
-            self.layouts = Set([baseLayout])
+            self.layouts = [baseLayout]
             return
         }
         
@@ -237,7 +251,7 @@ class PublicationManager: ObservableObject {
         }
         
         self.layouts = allLayouts
-        self.selectedLayout = self.layouts.first
+        self.selectedLayoutIndex = 0
     }
     
     
@@ -361,5 +375,11 @@ class PublicationManager: ObservableObject {
         static let range = 0.1...2.1
         static let step = 0.2
         static let initial = 0.2
+    }
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }
