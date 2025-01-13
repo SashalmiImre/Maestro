@@ -30,18 +30,34 @@ class Article: Equatable, Hashable {
     // MARK: - Private Helpers
     
     private static func findMatchingPDF(for inddFileName: String, in availablePDFs: [URL]) -> URL? {
-        var bestMatch: (url: URL, similarity: Double)? = nil
-
-        for pdfURL in availablePDFs {
-            let pdfFileName = pdfURL.deletingPathExtension().lastPathComponent
-            let similarity  = inddFileName.calculateSimilarity(with: pdfFileName)
-
-            if similarity >= 0.8 && (bestMatch == nil || similarity > bestMatch!.similarity) {
-                bestMatch = (pdfURL, similarity)
-            }
+        // Parse the INDD filename to get the page range
+        guard let inddParsed = FileNameParser.parse(fileName: inddFileName) else {
+            return nil
         }
-
-        return bestMatch?.url
+        
+        // First, find all PDFs that match the page range
+        let matchingPageRangePDFs = availablePDFs.compactMap { pdfURL -> (url: URL, similarity: Double)? in
+            let pdfFileName = pdfURL.deletingPathExtension().lastPathComponent
+            guard let pdfParsed = FileNameParser.parse(fileName: pdfFileName),
+                  pdfParsed.startPage == inddParsed.startPage,
+                  pdfParsed.endPage == inddParsed.endPage else {
+                return nil
+            }
+            
+            // Remove the page numbers from both filenames for better comparison
+            let inddNameWithoutPages = inddParsed.articleName ?? inddFileName
+            let pdfNameWithoutPages = pdfParsed.articleName ?? pdfFileName
+            
+            // Calculate similarity between names without page numbers
+            let similarity = inddNameWithoutPages.calculateSimilarity(with: pdfNameWithoutPages)
+            return (pdfURL, similarity)
+        }
+        
+        // Return the PDF with the highest similarity score
+        // No minimum threshold to ensure we always get a match if pages align
+        return matchingPageRangePDFs
+            .max(by: { $0.similarity < $1.similarity })?
+            .url
     }
 
     

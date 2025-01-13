@@ -21,6 +21,9 @@ class PublicationManager: ObservableObject {
     @Published var maxPageNumber: Int = 8
     @Published var zoomLevel: Double = ZoomSettings.initial
     @Published var isEditMode: Bool = false
+    @Published var isExporting = false
+    @Published var layoutColumns: Int = 5
+    @Published var currentPageNumber: Int = 1
     
 
     // MARK: - Private Properties
@@ -374,7 +377,7 @@ class PublicationManager: ObservableObject {
     struct ZoomSettings {
         static let range = 0.1...2.1
         static let step = 0.2
-        static let initial = 0.2
+        static let initial = 0.3
     }
 }
 

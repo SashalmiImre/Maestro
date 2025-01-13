@@ -13,19 +13,17 @@ struct PageView: View {
     let page: Page
     
     var body: some View {
-        if let pdfPage = page.pdfPage?.page(at: 0) {
-            PDFPageRendererView(
-                pdfPage: pdfPage,
-                displayBox: .trimBox
-            )
-            .background(Color.white)
-            .overlay(manager.isEditMode ? Color.blue.opacity(0.3) : Color.clear)
-            .overlay(
-                Rectangle()
-                    .stroke(page.article!.hasFinalPDF ? Color.clear : Color.red, lineWidth: 2)
-            )
-        } else {
-            emptyNumberedPage()
+        Group {
+            if let pdfPage = page.pdfPage?.page(at: 0) {
+                PDFPageRendererView(
+                    pdfPage: pdfPage,
+                    displayBox: .trimBox
+                )
+                .background(Color.white)
+                .overlay(manager.isEditMode ? Color.blue.opacity(0.3) : Color.clear)
+            } else {
+                emptyNumberedPage()
+            }
         }
     }
     

@@ -22,7 +22,6 @@ class Page: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(pageNumber)
         hasher.combine(article)
-        // Note: PDFDocument is not Hashable, so we don't include it
     }
     
     // MARK: - Equatable Implementation

@@ -1,8 +1,17 @@
 import Foundation
 
-enum Magazine: String {
-    case story = "S"
-    case best = "BEST"
+enum Magazine {
+    case story
+    case best
+    case custom(String)
+    
+    var name: String {
+        switch self {
+        case .story: return "STORY"
+        case .best: return "BEST"
+        case .custom(let name): return name
+        }
+    }
 }
 
 struct ParsedFileName {
@@ -13,7 +22,7 @@ struct ParsedFileName {
 }
 
 class FileNameParser {
-    private static let pattern = #"^(?:([sS])|(?i:BEST))\s+(\d{1,3})(?:[\s_](\d{1,3}))?\s*(.+)?$"#
+    private static let pattern = #"^([^\s_]+)[\s_]+(\d{1,3})(?:[\s_](\d{1,3}))?\s*(.+)?$"#
     
     static func parse(fileName: String) -> ParsedFileName? {
         guard let match = fileName.matches(pattern: pattern).first else { return nil }
@@ -21,11 +30,15 @@ class FileNameParser {
         let nsString = fileName as NSString
         
         // Magazine típus meghatározása
+        let magazinePart = nsString.substring(with: match.range(at: 1)).uppercased()
         let magazine: Magazine
-        if match.range(at: 1).location != NSNotFound {
+        switch magazinePart {
+        case "S", "STORY":
             magazine = .story
-        } else {
+        case "BEST":
             magazine = .best
+        default:
+            magazine = .custom(magazinePart)
         }
         
         // Kezdő oldalszám

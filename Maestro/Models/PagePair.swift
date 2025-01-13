@@ -21,10 +21,16 @@ class PagePair: Hashable {
         self.rightPage = rightPage
     }
     
+    
+    // MARK: - Equatable Implementation
+
     static func == (lhs: PagePair, rhs: PagePair) -> Bool {
         return lhs.leftPage == rhs.leftPage
         && lhs.rightPage == rhs.rightPage
     }
+   
+    
+    // MARK: - Hashable Implementation
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(leftPage)

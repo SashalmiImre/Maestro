@@ -5,7 +5,7 @@ import PDFKit
 /// Ez a struktúra felelős a cikkek oldalainak nyilvántartásáért és
 /// az oldalütközések kezeléséért.
 /// - Note: A struktúra Equatable és Hashable, hogy használható legyen Set és Dictionary típusokban
-struct Layout: Equatable, Hashable {
+struct Layout: Hashable {
     /// A layoutban tárolt cikkek gyűjteménye.
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
     private var articles: [Article] = []
@@ -102,17 +102,18 @@ struct Layout: Equatable, Hashable {
         for page in pages {
             if let pdfPage = page.pdfPage?.page(at: 0) {
                 let bounds = pdfPage.bounds(for: displayBox)
-                maxSize.size.width = max(maxSize.size.width, bounds.width)
+                maxSize.size.width  = max(maxSize.size.width, bounds.width)
                 maxSize.size.height = max(maxSize.size.height, bounds.height)
             }
         }
         
         return maxSize == .zero ? NSRect(x: 0, y: 0, width: 595, height: 842) : maxSize
     }
-    
-    // MARK: - Equatable Implementation
-    
+}
+
+extension Layout: Equatable {
     static func == (lhs: Layout, rhs: Layout) -> Bool {
+        // Two layouts are equal if they have the same articles in the same order
         lhs.articles == rhs.articles
     }
 }
