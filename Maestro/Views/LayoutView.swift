@@ -8,6 +8,10 @@ struct LayoutView: View {
     
     let layout: Layout
     
+    @State private var eventMonitor: Any?
+    @State private var pagePairs: [PagePair] = []
+    @State private var maxPageSize: CGSize = .zero
+    
     // MARK: - Layout Properties
     
     private var spacing: CGFloat {
@@ -20,24 +24,33 @@ struct LayoutView: View {
             .onTapGesture {
                 // clearSelection()
             }
-            .onChange(of: manager.isEditMode) { newValue in
+            .onChange(of: manager.isEditMode) { _, newValue in
                 if !newValue {
                     // clearSelection()
                 }
             }
-            .onChange(of: manager.isExporting) { newValue in
-                // Simplified layout check using the already implemented Equatable
+            .onChange(of: manager.isExporting) { _, newValue in
                 if layout == manager.selectedLayout && newValue == true {
                     saveToPDF()
                 }
             }
             .onAppear {
-                keyDownHandler()
+                eventMonitor = keyDownHandler()
+                loadPagePairs()
+                loadMaxPageSize()
+            }
+            .onDisappear {
+                if let monitor = eventMonitor {
+                    NSEvent.removeMonitor(monitor)
+                    eventMonitor = nil
+                    print("Event monitor removed.")
+                } else {
+                    print("No event monitor to remove.")
+                }
             }
     }
     
     private var pagesGrid: some View {
-        let pagePairs = layout.pagePairs(maxPageCount: manager.maxPageNumber)
         let pagePairsCount = pagePairs.count
         let rowNumber = Int(ceil(Double(pagePairsCount) / Double(manager.layoutColumns)))
         
@@ -62,54 +75,22 @@ struct LayoutView: View {
         .background(Color.clear)
     }
     
-    @discardableResult
     private func keyDownHandler() -> Any? {
         return NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             if event.modifierFlags.contains(.command) {
                 switch event.charactersIgnoringModifiers {
                 case "0":
-                    withAnimation {
-                        // Zoom to fit current page
-                        if let pageSize = manager.layouts.first?.maxPageSize(for: .trimBox) {
-                            let availableSize = context.scrollViewAvaiableSize
-                            let availableWidth = availableSize.width - spacing * 2
-                            let availableHeight = availableSize.height - spacing * 2
-                            let zoomX = availableWidth / (pageSize.width * 2)
-                            let zoomY = availableHeight / pageSize.height
-                            manager.zoomLevel = max(0.1, min(zoomX, zoomY))
-                        }
+                    Task {
+                        await zoomToFitCurrentPage()
                     }
-                    return nil
-                    
                 case "1":
-                    withAnimation {
-                        // Adjust zoom to fit layout width
-                        if let pageWidth = manager.selectedLayout?.maxPageSize(for: .trimBox).width {
-                            let totalWidth = (pageWidth * 2.0 * CGFloat(manager.layoutColumns)) + (spacing * CGFloat(manager.layoutColumns - 1))
-                            let availableSize = context.scrollViewAvaiableSize
-                            let availableWidth = availableSize.width - spacing * 2
-                            manager.zoomLevel = max(0.1, availableWidth / totalWidth)
-                        }
+                    Task {
+                        await zoomToFitLayoutWidth()
                     }
-                    return nil
-                    
                 case "3":
-                    withAnimation {
-                        // Zoom to fit current page pair
-                        if let pagePair = layout.pagePairs(maxPageCount: manager.maxPageNumber)
-                            .first(where: { $0.coverage.contains(manager.currentPageNumber) }),
-                           let pageSize = manager.layouts.first?.maxPageSize(for: .trimBox) {
-                            let pairWidth = pageSize.width * 2
-                            let availableSize = context.scrollViewAvaiableSize
-                            let availableWidth = availableSize.width - spacing * 2
-                            let availableHeight = availableSize.height - spacing * 2
-                            let zoomX = availableWidth / pairWidth
-                            let zoomY = availableHeight / pageSize.height
-                            manager.zoomLevel = max(0.1, min(zoomX, zoomY))
-                        }
+                    Task {
+                        await zoomToFitCurrentPagePair()
                     }
-                    return nil
-                    
                 default:
                     break
                 }
@@ -118,26 +99,74 @@ struct LayoutView: View {
         }
     }
     
-
+    private func loadPagePairs() {
+        Task {
+            self.pagePairs = await layout.pagePairs(maxPageCount: manager.maxPageNumber)
+        }
+    }
+    
+    private func loadMaxPageSize() {
+        Task {
+            if let rect = await manager.layouts.first?.maxPageSize(for: .trimBox) {
+                self.maxPageSize = rect.size
+            }
+        }
+    }
+    
+    private func zoomToFitCurrentPage() async {
+        let availableSize = context.scrollViewAvaiableSize
+        let availableWidth = availableSize.width - spacing * 2
+        let availableHeight = availableSize.height - spacing * 2
+        let zoomX = availableWidth / (maxPageSize.width * 2)
+        let zoomY = availableHeight / maxPageSize.height
+        await MainActor.run {
+            withAnimation {
+                manager.zoomLevel = max(0.1, min(zoomX, zoomY))
+            }
+        }
+    }
+    
+    private func zoomToFitLayoutWidth() async {
+        let totalWidth = (maxPageSize.width * 2.0 * CGFloat(manager.layoutColumns)) + (spacing * CGFloat(manager.layoutColumns - 1))
+        let availableSize = context.scrollViewAvaiableSize
+        let availableWidth = availableSize.width - spacing * 2
+        await MainActor.run {
+            withAnimation {
+                manager.zoomLevel = max(0.1, availableWidth / totalWidth)
+            }
+        }
+    }
+    
+    private func zoomToFitCurrentPagePair() async {
+        if let pagePair = pagePairs.first(where: { $0.coverage.contains(manager.currentPageNumber) }) {
+            let pairWidth = maxPageSize.width * 2
+            let availableSize = context.scrollViewAvaiableSize
+            let availableWidth = availableSize.width - spacing * 2
+            let availableHeight = availableSize.height - spacing * 2
+            let zoomX = availableWidth / pairWidth
+            let zoomY = availableHeight / maxPageSize.height
+            await MainActor.run {
+                withAnimation {
+                    manager.zoomLevel = max(0.1, min(zoomX, zoomY))
+                }
+            }
+        }
+    }
     
     private func saveToPDF() {
         Task {
-            // Calculate the total size needed
-            let pageSize = manager.layouts.first!.maxPageSize(for: .trimBox)
-            let pairCount = layout.pagePairs(maxPageCount: manager.maxPageNumber).count
+            let pairCount = pagePairs.count
             let rowCount = Int(ceil(Double(pairCount) / Double(manager.layoutColumns))) + 1
             let columnCount = min(pairCount, manager.layoutColumns)
             
-            // Calculate total width and height including spacing
-            let totalWidth = (pageSize.width * 2 * CGFloat(columnCount) * manager.zoomLevel) + (spacing * CGFloat(columnCount - 1)) + (spacing * 2)
-            let totalHeight = (pageSize.height * CGFloat(rowCount) * manager.zoomLevel) + (spacing * CGFloat(rowCount - 1)) + (spacing * 2)
+            let totalWidth = (maxPageSize.width * 2 * CGFloat(columnCount) * manager.zoomLevel) + (spacing * CGFloat(columnCount - 1)) + (spacing * 2)
+            let totalHeight = (maxPageSize.height * CGFloat(rowCount) * manager.zoomLevel) + (spacing * CGFloat(rowCount - 1)) + (spacing * 2)
             
             let mediaBox = CGRect(x: 0, y: 0, width: totalWidth, height: totalHeight)
             
             let renderer = ImageRenderer(content: self.environmentObject(manager))
             renderer.proposedSize = ProposedViewSize(width: totalWidth, height: totalHeight)
             
-            // Configure the renderer
             renderer.scale = 1.0
             renderer.isOpaque = false
             
@@ -154,34 +183,17 @@ struct LayoutView: View {
                                 context.endPDFPage()
                                 context.closePDF()
                             }
-               
                             
                             print("PDF saved at \(url)")
                         } else {
                             print("Failed to create PDF context")
                         }
-                        manager.isExporting = false
+                        Task { @MainActor in
+                            manager.isExporting = false
+                        }
                     }
                 }
             }
-        }
-    }
-    
-    // Add PreferenceKey for content size
-    private struct ContentSizePreferenceKey: PreferenceKey {
-        static var defaultValue: CGSize = .zero
-        
-        static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-            value = nextValue()
-        }
-    }
-    
-    // Add new PreferenceKey for view size
-    private struct ViewSizeKey: PreferenceKey {
-        static var defaultValue: CGSize = .zero
-        
-        static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-            value = nextValue()
         }
     }
 }

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var manager: PublicationManager = .init()
-    @State private var error: Error?
-    @State private var temporaryPageNumber: Int = 1
+    @StateObject private var manager: PublicationManager = .init()
+    @State       private var error: Error?
+    @State       private var temporaryPageNumber: Int = 1
     
     // Add formatter for columns
     private let columnsFormatter: NumberFormatter = {
@@ -63,12 +63,12 @@ struct ContentView: View {
                                 columnsControls
                             }
                         }
-                                                
+                        
                         // Jobb oldali elemek
                         ToolbarItemGroup(placement: .primaryAction) {
                             HStack {
                                 Divider()
-
+                                
                                 // Frissítés gomb
                                 Button {
                                     Task {
@@ -157,7 +157,7 @@ struct ContentView: View {
                 .onSubmit {
                     manager.currentPageNumber = temporaryPageNumber
                 }
-                .onChange(of: manager.currentPageNumber) { newValue in
+                .onChange(of: manager.currentPageNumber) { _, newValue in
                     temporaryPageNumber = newValue
                 }
             

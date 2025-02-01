@@ -2,7 +2,7 @@ import Foundation
 import PDFKit
 
 class Article: Equatable, Hashable {
-    let publication: Publication
+    unowned var publication: Publication
     let name: String
     let coverage: ClosedRange<Int>
     let inddFile: URL
@@ -87,6 +87,8 @@ class Article: Equatable, Hashable {
         // Oldalak feldolgozása és tárolása
         switch pdfDocument.collectingPages(coverage: coverage) {
         case .failure(let error):
+            // TODO: Kezelni kell
+            print(error.localizedDescription)
             return nil
         case .success(let pdfPages):
             let newPages = pdfPages.map { (pageNumber: Int, pdfPage: PDFDocument) in

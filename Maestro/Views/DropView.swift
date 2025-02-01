@@ -38,7 +38,6 @@ struct DropView: View {
         }
     }
     
-    @MainActor
     private func handleDrop(providers: [NSItemProvider]) {
         guard let provider = providers.first else { return }
         
@@ -46,15 +45,19 @@ struct DropView: View {
         
         provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, error in
             if let error = error {
-                self.error = error
-                self.isLoading = false
+                Task { @MainActor in
+                    self.error = error
+                    self.isLoading = false
+                }
                 return
             }
             
             guard let data = item as? Data,
                   let url = URL(dataRepresentation: data, relativeTo: nil) else {
-                self.error = DropView.Errors.invalidURL
-                self.isLoading = false
+                Task { @MainActor in
+                    self.error = DropView.Errors.invalidURL
+                    self.isLoading = false
+                }
                 return
             }
             

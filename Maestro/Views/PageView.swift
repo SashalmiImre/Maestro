@@ -14,30 +14,40 @@ struct PageView: View {
     
     var body: some View {
         Group {
-            if let pdfPage = page.pdfPage?.page(at: 0) {
-                PDFPageRendererView(
-                    pdfPage: pdfPage,
-                    displayBox: .trimBox
-                )
-                .background(Color.white)
-                .overlay(manager.isEditMode ? Color.blue.opacity(0.3) : Color.clear)
+            if let pdfPage = page.pdfPage {
+                PageRendererView(pdfPage: pdfPage)
+                    .background(Color.white)
+                    .overlay(manager.isEditMode ? Color.blue.opacity(0.3) : Color.clear)
             } else {
-                emptyNumberedPage()
+                EmptyNumberedPageView(page: page, manager: manager)
             }
         }
     }
+}
+
+struct EmptyNumberedPageView: View {
+    let page: Page
+    @ObservedObject var manager: PublicationManager
     
-    fileprivate func emptyNumberedPage() -> some View {
-        return Rectangle()
+    @State private var size: CGSize = .zero
+    
+    var body: some View {
+        Rectangle()
             .fill(Color.gray.opacity(0.1))
             .frame(
-                width: manager.selectedLayout!.maxPageSize(for: .trimBox).width * manager.zoomLevel,
-                height: manager.selectedLayout!.maxPageSize(for: .trimBox).height * manager.zoomLevel
+                width: size.width * manager.zoomLevel,
+                height: size.height * manager.zoomLevel
             )
             .overlay(
                 Text("\(page.pageNumber)")
                     .font(.system(size: 240 * manager.zoomLevel))
-                    .foregroundColor(.gray.opacity(0.20))
+                    .foregroundColor(.gray.opacity(0.10))
             )
+            .task {
+                if let layout = manager.selectedLayout {
+                    let rect = await layout.maxPageSize(for: .trimBox)
+                    size = rect.size
+                }
+            }
     }
 }

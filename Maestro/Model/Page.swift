@@ -9,7 +9,7 @@ import PDFKit
 
 class Page: Hashable {
     var pageNumber: Int
-    let article: Article?
+    unowned var article: Article?
     let pdfPage: PDFDocument?
     
     init(article: Article?, pageNumber: Int, pdfPage: PDFDocument?) {

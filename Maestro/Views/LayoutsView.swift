@@ -16,6 +16,9 @@ struct LayoutsView: View {
         }
         .padding()
         .navigationTitle(manager.publication?.name ?? "Név nélkül")
+//        .onDisappear {
+//            context.pageImageCache.removeAllObjects()
+//        }
     }
 }
 
@@ -50,7 +53,7 @@ struct LayoutContent: View {
                         .environmentObject(context)
                         .frame(minWidth: scrollViewGeometry.size.width - horizontalPadding * 2,
                                minHeight: scrollViewGeometry.size.height - verticalPadding * 2)
-                        .onChange(of: manager.currentPageNumber) { targetPageNumber in
+                        .onChange(of: manager.currentPageNumber) { _, targetPageNumber in
                             let pageID = "Page\(targetPageNumber)"
                             withAnimation {
                                 proxy.scrollTo(pageID, anchor: .center)
@@ -60,7 +63,7 @@ struct LayoutContent: View {
                         .padding(.horizontal, horizontalPadding)
                         .padding(.vertical, verticalPadding)
                 }
-                .onChange(of: scrollViewGeometry.size) { newSize in
+                .onChange(of: scrollViewGeometry.size) { _, newSize in
                     context.scrollViewAvaiableSize = newSize
                 }
                 .onAppear {
@@ -75,10 +78,3 @@ struct LayoutContent: View {
         .tag(index)
     }
 }
-//
-//struct LayoutsView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        LayoutsView()
-//            .environmentObject(PublicationManager())
-//    }
-//}

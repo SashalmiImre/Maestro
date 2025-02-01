@@ -5,8 +5,8 @@ extension PDFDocument {
     /// - Parameters:
     ///   - coverage: Az oldalszámokat tartalmazó zárt tartomány
     /// - Returns: A feldolgozott oldalak szótára, ahol a kulcs az oldalszám, vagy hiba esetén az adott hiba
-    func collectingPages(coverage: ClosedRange<Int>) -> Result<[Int: PDFDocument], PageColletingError> {
-        var processedPages: [Int: PDFDocument] = [:]
+    func collectingPages(coverage: ClosedRange<Int>) -> Result<[Int: PDFPage], PageColletingError> {
+        var processedPages: [Int: PDFPage] = [:]
         let pdfPageCount  = self.pageCount
         let coverageCount = coverage.count
         
@@ -47,14 +47,14 @@ extension PDFDocument {
             switch pageType {
             case .single:
                 if let fullPagePDF = pdfPage.createPDF(side: .full) {
-                    processedPages[currentPage] = fullPagePDF
+                    processedPages[currentPage] = fullPagePDF.page(at: 0)
                     currentPage += 1
                 }
                 
             case .spread:
                 // Bal oldali fél
                 if let leftPagePDF = pdfPage.createPDF(side: .left) {
-                    processedPages[currentPage] = leftPagePDF
+                    processedPages[currentPage] = leftPagePDF.page(at: 0)
                 }
                 
                 currentPage += 1
@@ -62,7 +62,7 @@ extension PDFDocument {
                 // Jobb oldali fél
                 if currentPage <= coverage.upperBound,
                    let rightPagePDF = pdfPage.createPDF(side: .right) {
-                    processedPages[currentPage] = rightPagePDF
+                    processedPages[currentPage] = rightPagePDF.page(at: 0)
                     currentPage += 1
                 }
             }
