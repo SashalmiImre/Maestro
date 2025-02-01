@@ -7,24 +7,34 @@
 
 import PDFKit
 
-class Page: Hashable {
-    var pageNumber: Int
-    unowned var article: Article?
-    let pdfPage: PDFDocument?
+actor Page: Hashable {
     
-    init(article: Article?, pageNumber: Int, pdfPage: PDFDocument?) {
-        self.article = article
-        self.pageNumber = pageNumber
-        self.pdfPage = pdfPage
+    unowned let article: Article?
+    let pageNumber: Int
+    let pdfData: Data?
+    
+    nonisolated(unsafe) var pdfPage: PDFPage? {
+        guard let data = pdfData else { return nil }
+        return PDFDocument(data: data)?.page(at: 0)
     }
     
+    init(article: Article?, pageNumber: Int, pdfData: Data?) {
+        self.article = article
+        self.pageNumber = pageNumber
+        self.pdfData = pdfData
+    }
+    
+    
     // MARK: - Hashable Implementation
-    func hash(into hasher: inout Hasher) {
+    
+    nonisolated func hash(into hasher: inout Hasher) {
         hasher.combine(pageNumber)
         hasher.combine(article)
     }
     
+    
     // MARK: - Equatable Implementation
+    
     static func == (lhs: Page, rhs: Page) -> Bool {
         return lhs.pageNumber == rhs.pageNumber &&
                lhs.article == rhs.article

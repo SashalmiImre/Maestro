@@ -5,10 +5,18 @@ import PDFKit
 /// Ez a struktúra felelős a cikkek oldalainak nyilvántartásáért és
 /// az oldalütközések kezeléséért.
 /// - Note: A struktúra Equatable és Hashable, hogy használható legyen Set és Dictionary típusokban
-struct Layout: Hashable {
+actor Layout: Hashable {
+    
+    init(publication: Publication, articles: Array<Article> = .init()) {
+        self.publication = publication
+        self.articles = articles
+    }
+    
+    unowned let publication: Publication
+    
     /// A layoutban tárolt cikkek gyűjteménye.
     /// Minden cikk csak egyszer szerepelhet, és nem lehet átfedés az oldalszámaik között.
-    private var articles: [Article] = []
+    nonisolated(unsafe) var articles: Array<Article>
     
     /// Ellenőrzi, hogy a layout tartalmaz-e cikkeket
     /// - Returns: `true` ha a layout üres, `false` ha tartalmaz cikkeket
@@ -29,7 +37,7 @@ struct Layout: Hashable {
     /// A legnagyobb oldalszám, ami a layoutban szereplő cikkek között előfordul.
     /// Ez az érték a cikkek coverage property-jének upperBound értékeiből számolódik.
     /// - Returns: A legnagyobb oldalszám, vagy 0 ha nincs cikk a layoutban
-    var maxPageNumber: Int {
+    nonisolated var maxPageNumber: Int {
         articles
             .map { $0.coverage.upperBound }
             .max() ?? 0
@@ -55,7 +63,7 @@ struct Layout: Hashable {
     /// - Note: A @discardableResult attribútum lehetővé teszi, hogy
     ///        figyelmen kívül hagyjuk a visszatérési értéket, ha nem releváns
     @discardableResult
-    mutating func add(_ article: Article) -> Bool {
+    func add(_ article: Article) -> Bool {
         // Az Article.overlaps metódusával ellenőrizzük, hogy van-e ütközés
         // bármely már meglévő cikkel
         let hasNoConflict = !articles.contains { $0.overlaps(with: article) }
@@ -88,9 +96,9 @@ struct Layout: Hashable {
             .map { startIndex -> PagePair in
                 // Létrehozzuk a bal és jobb oldalt reprezentáló Page objektumokat
                 let leftPage = pageDict[startIndex] ??
-                    Page(article: nil, pageNumber: startIndex, pdfPage: nil)
+                Page(article: nil, pageNumber: startIndex, pdfData: nil)
                 let rightPage = pageDict[startIndex + 1] ??
-                    Page(article: nil, pageNumber: startIndex + 1, pdfPage: nil)
+                    Page(article: nil, pageNumber: startIndex + 1, pdfData: nil)
                 
                 return PagePair(leftPage: leftPage, rightPage: rightPage)
             }
@@ -100,7 +108,7 @@ struct Layout: Hashable {
         var maxSize = NSRect.zero
         
         for page in pages {
-            if let pdfPage = page.pdfPage?.page(at: 0) {
+            if let pdfPage = page.pdfPage {
                 let bounds = pdfPage.bounds(for: displayBox)
                 maxSize.size.width  = max(maxSize.size.width, bounds.width)
                 maxSize.size.height = max(maxSize.size.height, bounds.height)
@@ -115,5 +123,9 @@ extension Layout: Equatable {
     static func == (lhs: Layout, rhs: Layout) -> Bool {
         // Two layouts are equal if they have the same articles in the same order
         lhs.articles == rhs.articles
+    }
+    
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(articles)
     }
 }

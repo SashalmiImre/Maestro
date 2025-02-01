@@ -8,11 +8,11 @@
 import Foundation
 import PDFKit
 
-class PagePair: Hashable {
+actor PagePair: Hashable {
     let leftPage: Page
     let rightPage: Page
 
-    var coverage: ClosedRange<Int> {
+    nonisolated var coverage: ClosedRange<Int> {
         return leftPage.pageNumber...rightPage.pageNumber
     }
 
@@ -32,7 +32,7 @@ class PagePair: Hashable {
     
     // MARK: - Hashable Implementation
     
-    func hash(into hasher: inout Hasher) {
+    nonisolated func hash(into hasher: inout Hasher) {
         hasher.combine(leftPage)
         hasher.combine(rightPage)
     }
