@@ -1,4 +1,4 @@
-//
+// 
 //  MaestroApp.swift
 //  Maestro
 //
@@ -9,15 +9,14 @@
 
 import SwiftUI
 
-/// A Maestro alkalmazás fő típusa
-/// Felelős az alkalmazás életciklusának kezeléséért és a fő nézet megjelenítéséért
 @main
 struct MaestroApp: App {
-    /// Az alkalmazás fő nézethierarchiájának definíciója
-    /// - Returns: Egy Scene objektum, amely az alkalmazás fő ablakát reprezentálja
     var body: some Scene {
         WindowGroup {
             ContentView()
+        }
+        .commands {
+            MainMenu()
         }
     }
 }

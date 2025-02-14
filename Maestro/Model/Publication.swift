@@ -10,7 +10,7 @@ actor Publication {
     let name: String
     
     /// A kiadványhoz tartozó cikkek listája
-    var articles: [Article] = .init()
+    var articles: Array<Article> = .init()
     
     /// A kiadvány alap mappája
     let baseFolder: URL
@@ -30,17 +30,14 @@ actor Publication {
     /// A levilágított anyagok mappája
     let printedFolder: URL
     
-    /// Az oldalakból generált layoutok
-    private(set) var layouts: Set<Layout> = .init()
-    
     /// Az összes munkafolyamat mappa együtt
     var workflowFolders: [URL] {
         [pdfFolder, layoutFolder, correctedFolder, printableFolder, printedFolder]
     }
     
-    /// Inicializálja a kiadványt egy mappa URL alapján
-    /// - Parameter folderURL: A kiadvány gyökérmappájának URL-je
-    /// - Throws: Hibát dob, ha nem sikerül létrehozni a szükséges mappákat
+    
+    // MARK: - Initialization
+    
     init(folderURL: URL) async throws {
         self.baseFolder = folderURL
         self.name = folderURL.lastPathComponent
@@ -60,24 +57,26 @@ actor Publication {
         }
     }
     
+    
+    // MARK: - Articles
+
     func refreshArticles() async {
-        // Find all files asynchronously
         guard let fileURLs = try? await findFiles() else { return }
-        
-        var newArticles: [Article] = []
+        print("refreshArticles")
+        var newArticles: Array<Article> = []
         
         await withTaskGroup(of: Article?.self) { group in
-            for inddFile in fileURLs.inddURLs {
+            for inddFileURL in fileURLs.indd {
                 group.addTask {
                     return await Article(publication: self,
-                                         inddFile: inddFile,
-                                         availablePDFs: fileURLs.pdfURLs)
+                                         inddFile: inddFileURL,
+                                         availablePDFs: fileURLs.pdf)
                 }
             }
             
             for await article in group {
                 if let article = article {
-                    newArticles.append(article)  // Collect new articles
+                    newArticles.append(article)
                 }
             }
         }
@@ -85,9 +84,9 @@ actor Publication {
         self.articles = newArticles
     }
     
-    /// Megkeresi az összes PDF és InDesign fájlt, először a workflow mappákban,
-    /// majd a többi mappában, de csak a nem hasonló nevűeket
-    private func findFiles() async throws -> (inddURLs: [URL], pdfURLs: [URL]) {
+    
+    typealias workingFileURLs = (indd: Array<URL>, pdf: Array<URL>)
+    private func findFiles() async throws -> workingFileURLs {
         
         let propertiesKeys: Array<URLResourceKey> = [.isRegularFileKey]
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
@@ -128,13 +127,11 @@ actor Publication {
             }
         }
         
-        return (inddURLs: inddURLs, pdfURLs: pdfURLs)
+        return (indd: inddURLs, pdf: pdfURLs)
     }
     
-    /// Megkeresi az első szintű érvényes almappákat a base mappában (workflow mappák nélkül)
+    
     private func findValidSubfolders() throws -> [URL] {
-        
-        // Csak az első szintű tartalom lekérése (nem rekurzív)
         let contents = try FileManager.default.contentsOfDirectory(
             at: baseFolder,
             includingPropertiesForKeys: [.isDirectoryKey, .isHiddenKey, .tagNamesKey],
@@ -162,7 +159,72 @@ actor Publication {
     }
     
     
-    /// Csoportosítja a cikkeket oldalszám átfedés alapján
+    // MARK: - Layouts
+
+    var layoutCombinations: Set<Layout> {
+         get async {
+            // Guard és ellenőrzések maradnak ugyanazok a publikációra
+            guard !articles.isEmpty else {
+                return .init()
+            }
+            
+            // Szétválasztjuk a cikkeket ütközők és nem ütközők csoportjára
+            let (nonConflictingArticles, conflictingArticles) = findArticleCoverageConflicts()
+            
+            // Létrehozzuk az alap layout-ot a nem ütköző cikkekkel
+            let baseLayout = Layout(publication: self)
+            for article in nonConflictingArticles {
+                await baseLayout.add(article)
+            }
+            
+            // Ha nincs ütköző cikk, nincs szükség további variációk generálására
+            if conflictingArticles.isEmpty {
+                return [baseLayout]
+            }
+            
+            // Csoportosítja a cikkeket oldalszám átfedés alapján
+            let conflictGroups = groupArticles(conflictingArticles)
+            let combinations = generateArticleCombinations(conflictGroups)
+            
+            var allLayouts = Set<Layout>()
+            
+            // Az ütköző cikkek minden lehetséges sorrendjét kipróbáljuk
+            // Minden taskhoz hozzon létre egy izolált baseLayout másolatot
+             let baseLayoutCopy = Layout(publication: baseLayout.publication,
+                                         articles: baseLayout.articles)
+            
+            await withTaskGroup(of: Layout?.self) { group in
+                for combination in combinations {
+                    group.addTask { [combination] in
+                        let layout = Layout(publication: baseLayoutCopy.publication,
+                                            articles: baseLayoutCopy.articles)
+                        for article in combination {
+                            if await !layout.add(article) {
+                                return nil
+                            }
+                        }
+                        return layout
+                    }
+                }
+                
+                // Összegyűjtjük az érvényes layout-okat
+                for await layout in group {
+                    if let layout = layout {
+                        allLayouts.insert(layout)
+                    }
+                }
+            }
+            
+            // Ha nem sikerült egyetlen layout-ot sem generálni, használjuk az alapot
+            if allLayouts.isEmpty {
+                allLayouts.insert(baseLayout)
+            }
+            
+            return allLayouts
+        }
+    }
+    
+    
     private func groupArticles(_ articles: Array<Article>) -> Array<Array<Article>> {
         
         var groups: Array<Array<Article>> = .init()
@@ -190,10 +252,9 @@ actor Publication {
         return groups
     }
     
-    /// Generálja az összes lehetséges kombinációt a cikkcsoportokból
+    
     private func generateArticleCombinations(_ groups: Array<Array<Article>>) -> Array<Array<Article>> {
         
-        // Ha nincs csoport, üres tömböt adunk vissza
         guard !groups.isEmpty else { return .init() }
         
         // Ha csak egy csoport van, visszaadjuk annak elemeit külön-külön tömbökben
@@ -216,19 +277,14 @@ actor Publication {
         return result
     }
     
-    /// Szétválasztja a cikkeket ütköző és nem ütköző csoportokra
-    /// Egy cikk akkor ütközik, ha van olyan másik cikk, amellyel átfedésben van az oldalszámozása
-    ///
-    /// - Parameter articles: A vizsgálandó cikkek tömbje
-    /// - Returns: Tuple, ami tartalmazza a nem ütköző és ütköző cikkek tömbjeit
-    private func findArticleConflicts()
-    -> (nonConflicting: [Article], conflicting: [Article]) {
+
+    typealias ArticleCoverageConflictResult = (nonConflicting: Array<Article>, conflicting: Array<Article>)
+    private func findArticleCoverageConflicts() -> ArticleCoverageConflictResult {
         
-        var nonConflicting: [Article] = []
-        var conflicting: [Article] = []
+        var nonConflicting: Array<Article> = []
+        var conflicting: Array<Article> = []
         
         for article in articles {
-            // Ellenőrizzük, hogy a cikk ütközik-e bármely másik cikkel
             let hasConflict = articles
                 .filter { $0.name != article.name } // Kihagyjuk önmagát
                 .contains { article.coverage.overlaps($0.coverage) }
@@ -242,72 +298,5 @@ actor Publication {
         }
         
         return (nonConflicting, conflicting)
-    }
-    
-    
-    // MARK: - Layouts
-
-    /// Generálja a lehetséges layout variációkat a publikáció cikkeiből
-    /// A függvény figyelembe veszi az oldalszám-ütközéseket és optimalizál a cache használatával
-    ///
-    /// - Returns: A lehetséges layout-ok tömbje
-    private func generateLayoutCombinations() async {
-        // Guard és ellenőrzések maradnak ugyanazok a publikációra
-        guard !articles.isEmpty else {
-            return
-        }
-        
-        // Szétválasztjuk a cikkeket ütközők és nem ütközők csoportjára
-        let (nonConflictingArticles, conflictingArticles) = findArticleConflicts()
-        
-        // Létrehozzuk az alap layout-ot a nem ütköző cikkekkel
-        var baseLayout = Layout(publication: self)
-        for article in nonConflictingArticles {
-            await baseLayout.add(article)
-        }
-        
-        // Ha nincs ütköző cikk, nincs szükség további variációk generálására
-        if conflictingArticles.isEmpty {
-            self.layouts = [baseLayout]
-            return
-        }
-        
-        // Csoportosítja a cikkeket oldalszám átfedés alapján
-        let conflictGroups = groupArticles(conflictingArticles)
-        let combinations = generateArticleCombinations(conflictGroups)
-        
-        var allLayouts = Set<Layout>()
-        
-        // Az ütköző cikkek minden lehetséges sorrendjét kipróbáljuk
-        // Minden taskhoz hozzon létre egy izolált baseLayout másolatot
-        let baseLayoutCopy = baseLayout
-        
-        await withTaskGroup(of: Layout?.self) { group in
-            for combination in combinations {
-                group.addTask { [combination] in
-                    var layout = baseLayoutCopy
-                    for article in combination {
-                        if await !layout.add(article) {
-                            return nil
-                        }
-                    }
-                    return layout
-                }
-            }
-            
-            // Összegyűjtjük az érvényes layout-okat
-            for await layout in group {
-                if let layout = layout {
-                    allLayouts.insert(layout)
-                }
-            }
-        }
-        
-        // Ha nem sikerült egyetlen layout-ot sem generálni, használjuk az alapot
-        if allLayouts.isEmpty {
-            allLayouts.insert(baseLayout)
-        }
-        
-        self.layouts = allLayouts
     }
 }

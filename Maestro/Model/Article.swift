@@ -1,30 +1,15 @@
 import Foundation
 import PDFKit
 
-actor Article: Equatable, Hashable, @unchecked Sendable {
-    unowned let publication: Publication
-    let name: String
-    let coverage: ClosedRange<Int>
-    let inddFile: URL
-    let pdfFile: URL
-    nonisolated(unsafe) var pages: [Page] = .init()
-
-    // MARK: - Properties
+actor Article: Equatable, Hashable {
+    unowned     let publication: Publication
+                let name: String
+                let coverage: ClosedRange<Int>
+                let inddFile: URL
+                let pdfFile: URL
     
-    /// Indicates whether the PDF file is in the final PDF folder of the publication
     nonisolated var hasFinalPDF: Bool {
         pdfFile.isSubfolder(of: publication.pdfFolder)
-    }
-
-    // MARK: - Protocol Conformance
-    nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(inddFile)
-        hasher.combine(pdfFile)
-    }
-
-    static func == (lhs: Article, rhs: Article) -> Bool {
-        return lhs.inddFile == rhs.inddFile
-               && lhs.pdfFile == rhs.pdfFile
     }
 
     
@@ -42,28 +27,11 @@ actor Article: Equatable, Hashable, @unchecked Sendable {
         self.inddFile    = inddFile
         self.coverage    = parsedName.startPage...(parsedName.endPage ?? parsedName.startPage)
 
-        // Find and validate matching PDF
-        guard let pdfURL = await Article.findMatchingPDF(for: inddFileName, publication: publication, in: availablePDFs),
-              let pdfDocument = PDFDocument(url: pdfURL) else {
+        // Megkeresi a megfelelő PDF-fájlt
+        guard let pdfURL = await Article.findMatchingPDF(for: inddFileName, publication: publication, in: availablePDFs) else {
             return nil
         }
-
-        // Store the PDF source
         self.pdfFile = pdfURL
-
-        // Oldalak feldolgozása és tárolása
-        switch pdfDocument.collectingPages(coverage: coverage) {
-        case .failure(let error):
-            // TODO: Kezelni kell
-            print(error.localizedDescription)
-            return nil
-        case .success(let pdfPages):
-            let newPages = pdfPages.map { (pageNumber: Int, pdfPage: PDFPage) in
-                let pdfData = pdfPage.dataRepresentation
-                return Page(article: self, pageNumber: pageNumber, pdfData: pdfData)
-            }
-            self.pages = newPages
-        }
     }
 
     
@@ -78,7 +46,7 @@ actor Article: Equatable, Hashable, @unchecked Sendable {
         // First, find all PDFs that match the page range
         let matchingPageRangePDFs = availablePDFs.compactMap { pdfURL -> (url: URL, similarity: Double)? in
             let pdfFileName = pdfURL.deletingPathExtension().lastPathComponent
-            guard inddFileName.calculateSimilarity(with: pdfFileName) > 0.9,
+            guard inddFileName.calculateSimilarity(with: pdfFileName) > 0.8,
                   let pdfParsed = FileNameParser.parse(fileName: pdfFileName),
                   inddParsed.magazine.name == pdfParsed.magazine.name,
                   inddParsed.startPage     == pdfParsed.startPage,
@@ -86,38 +54,72 @@ actor Article: Equatable, Hashable, @unchecked Sendable {
                 return nil
             }
             
-            // Remove the page numbers from both filenames for better comparison
             let inddNameWithoutPages = inddParsed.articleName ?? inddFileName
             let pdfNameWithoutPages  = pdfParsed.articleName  ?? pdfFileName
             
-            guard pdfURL.isSubfolder(of: publication.pdfFolder) else {
+            if pdfURL.isSubfolder(of: publication.pdfFolder) {
                 return (pdfURL, Double.greatestFiniteMagnitude)
             }
             
-            // Calculate similarity between names without page numbers
             let similarity = inddNameWithoutPages.calculateSimilarity(with: pdfNameWithoutPages)
             return (pdfURL, similarity)
         }
         
-        // Return the PDF with the highest similarity score
-        // No minimum threshold to ensure we always get a match if pages align
         return matchingPageRangePDFs
             .max(by: { $0.similarity < $1.similarity })?
             .url
     }
     
+    
+    
+    // MARK: - Protocol Conformance
+    
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(inddFile)
+        hasher.combine(pdfFile)
+    }
+
+    static func == (lhs: Article, rhs: Article) -> Bool {
+        return lhs.inddFile == rhs.inddFile
+               && lhs.pdfFile == rhs.pdfFile
+    }
+
+    
+    
     // MARK: - Page Access
     
-    subscript(pageNumber: Int) -> Page? {
+    nonisolated lazy var pages: Array<Page> = {
+        guard let pdfDocument = PDFDocument(url: pdfFile) else {
+            return .init()
+        }
+        
+        var pages: Array<Page> = .init()
+        switch pdfDocument.collectingPages(coverage: coverage, displayBox: .trimBox) {
+        case .failure(let error):
+            // TODO: Kezelni kell
+            print("Page generálási hiba: \(error.localizedDescription)")
+            return .init()
+        case .success(let pdfPages):
+            pages = pdfPages.map { (pageNumber: Int, pdfPage: PDFPage) in
+                let pdfData = pdfPage.dataRepresentation
+                return Page(pageNumber: pageNumber, article: self, pdfData: pdfData)
+            }
+        }
+        return pages
+    }()
+    
+    
+    nonisolated subscript(pageNumber: Int) -> Page? {
         pages.first { page in
             page.pageNumber == pageNumber
         }
     }
 
-    /// Ellenőrzi, hogy van-e átfedés két cikk között az oldalszámozásban
-    /// - Parameter other: A másik cikk, amivel az átfedést vizsgáljuk
-    /// - Returns: True, ha van átfedés a két cikk oldalszámai között
-    nonisolated(unsafe) func overlaps(with other: Article) -> Bool {
+    
+    
+    // MARK: - Overlap
+    
+    nonisolated func overlaps(with other: Article) -> Bool {
         return self.coverage.overlaps(other.coverage)
     }
 }

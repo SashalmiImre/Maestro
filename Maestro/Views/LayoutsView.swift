@@ -1,6 +1,14 @@
 import SwiftUI
 import PDFKit
 
+struct ContentSizePreferenceKey: PreferenceKey {
+    static let defaultValue: CGSize = .zero
+    
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}
+
 struct LayoutsView: View {
     @StateObject private var context: LayoutViewContext = .init()
     @EnvironmentObject var manager: PublicationManager
@@ -16,9 +24,7 @@ struct LayoutsView: View {
         }
         .padding()
         .navigationTitle(manager.publication?.name ?? "Név nélkül")
-//        .onDisappear {
-//            context.pageImageCache.removeAllObjects()
-//        }
+        .focusedSceneObject(context)
     }
 }
 
@@ -33,7 +39,6 @@ struct LayoutContent: View {
         80 * manager.zoomLevel
     }
     
-    // Add computed properties for centering content
     private var horizontalPadding: CGFloat {
         let windowWidth = NSScreen.main?.frame.width ?? 1000
         return windowWidth / 4
@@ -51,23 +56,22 @@ struct LayoutContent: View {
                     LayoutView(layout: layout)
                         .environmentObject(manager)
                         .environmentObject(context)
-                        .frame(minWidth: scrollViewGeometry.size.width - horizontalPadding * 2,
-                               minHeight: scrollViewGeometry.size.height - verticalPadding * 2)
+                        .padding(.horizontal, horizontalPadding)
+                        .padding(.vertical, verticalPadding)
                         .onChange(of: manager.currentPageNumber) { _, targetPageNumber in
                             let pageID = "Page\(targetPageNumber)"
                             withAnimation {
                                 proxy.scrollTo(pageID, anchor: .center)
                             }
                         }
-                        // Add padding to allow edge items to center
-                        .padding(.horizontal, horizontalPadding)
-                        .padding(.vertical, verticalPadding)
                 }
                 .onChange(of: scrollViewGeometry.size) { _, newSize in
                     context.scrollViewAvaiableSize = newSize
+                    print("ScrollView available size: \(newSize)")
                 }
                 .onAppear {
                     context.scrollViewProxy = proxy
+                    context.scrollViewAvaiableSize = scrollViewGeometry.size
                 }
             }
         }

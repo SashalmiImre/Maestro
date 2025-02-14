@@ -63,9 +63,8 @@ struct DropView: View {
             
             Task { @MainActor in
                 do {
-                    let pub = try await Publication(folderURL: url)
-                    manager.publication = pub
-                    await manager.refresh()
+                    let publication = try await Publication(folderURL: url)
+                    manager.publication = publication
                 } catch {
                     self.error = DropView.Errors.failedToCreatePublication
                 }

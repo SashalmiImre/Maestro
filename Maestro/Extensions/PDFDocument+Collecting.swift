@@ -4,8 +4,9 @@ extension PDFDocument {
     /// Összegyűjti és feldolgozza a PDF oldalait egyedi oldalakká
     /// - Parameters:
     ///   - coverage: Az oldalszámokat tartalmazó zárt tartomány
+    ///   - displayBox: A PDF oldalak határainak meghatározásához használt doboz típusa
     /// - Returns: A feldolgozott oldalak szótára, ahol a kulcs az oldalszám, vagy hiba esetén az adott hiba
-    func collectingPages(coverage: ClosedRange<Int>) -> Result<[Int: PDFPage], PageColletingError> {
+    func collectingPages(coverage: ClosedRange<Int>, displayBox: PDFDisplayBox) -> Result<[Int: PDFPage], PageColletingError> {
         var processedPages: [Int: PDFPage] = [:]
         let pdfPageCount  = self.pageCount
         let coverageCount = coverage.count
@@ -27,10 +28,10 @@ extension PDFDocument {
             case single
             case spread
             
-            static func determine(for page: PDFPage) -> PageType {
+            static func determine(for page: PDFPage, displayBox: PDFDisplayBox) -> PageType {
                 // Ha az oldal szélessége nagyobb mint a magassága,
                 // akkor valószínűleg egy oldalpárról van szó
-                return page.bounds(for: .trimBox).width > page.bounds(for: .trimBox).height
+                return page.bounds(for: displayBox).width > page.bounds(for: displayBox).height
                     ? .spread
                     : .single
             }
@@ -42,18 +43,18 @@ extension PDFDocument {
         for pdfPageIndex in 0..<pdfPageCount {
             guard let pdfPage = self.page(at: pdfPageIndex) else { continue }
             
-            let pageType = PageType.determine(for: pdfPage)
+            let pageType = PageType.determine(for: pdfPage, displayBox: displayBox)
             
             switch pageType {
             case .single:
-                if let fullPagePDF = pdfPage.createPDF(side: .full) {
+                if let fullPagePDF = pdfPage.createPDF(side: .full, displayBox: displayBox) {
                     processedPages[currentPage] = fullPagePDF.page(at: 0)
                     currentPage += 1
                 }
                 
             case .spread:
                 // Bal oldali fél
-                if let leftPagePDF = pdfPage.createPDF(side: .left) {
+                if let leftPagePDF = pdfPage.createPDF(side: .left, displayBox: displayBox) {
                     processedPages[currentPage] = leftPagePDF.page(at: 0)
                 }
                 
@@ -61,7 +62,7 @@ extension PDFDocument {
                 
                 // Jobb oldali fél
                 if currentPage <= coverage.upperBound,
-                   let rightPagePDF = pdfPage.createPDF(side: .right) {
+                   let rightPagePDF = pdfPage.createPDF(side: .right, displayBox: displayBox) {
                     processedPages[currentPage] = rightPagePDF.page(at: 0)
                     currentPage += 1
                 }

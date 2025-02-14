@@ -10,11 +10,12 @@ extension PDFPage {
     
     /// Létrehoz egy új PDF dokumentumot az oldal egy meghatározott részéből
     /// - Parameter side: Melyik részét szeretnénk az oldalnak (.left, .right, vagy .full)
+    /// - Parameter displayBox: A PDF oldal megjelenítési területének típusa
     /// - Returns: Új PDF dokumentum a kivágott résszel, vagy nil hiba esetén
-    func createPDF(side: CropSide) -> PDFDocument? {
+    func createPDF(side: CropSide, displayBox: PDFDisplayBox) -> PDFDocument? {
         guard let newPage = self.copy() as? PDFPage else { return nil }
         
-        let pageRect = self.bounds(for: .trimBox)
+        let pageRect = self.bounds(for: displayBox)
         let halfWidth = pageRect.width / 2
         
         let bounds: CGRect
@@ -27,11 +28,11 @@ extension PDFPage {
             bounds = pageRect
         }
         
-        newPage.setBounds(bounds, for: .trimBox)
+        newPage.setBounds(bounds, for: displayBox)
         
         let newPDF = PDFDocument()
         newPDF.insert(newPage, at: 0)
         
         return newPDF
     }
-} 
+}

@@ -18,10 +18,10 @@ extension URL {
         }
 
         // Szimbolikus linkek feloldása és path-ek standardizálása
-        let standardizedSelfPath = self.resolvingSymlinksInPath().standardizedFileURL.path
+        let standardizedSelfPath   = self.resolvingSymlinksInPath().standardizedFileURL.path
         let standardizedParentPath = parent.resolvingSymlinksInPath().standardizedFileURL.path
 
         // Ellenőrizd, hogy az aktuális path a parent path prefixe-e
-        return standardizedSelfPath.hasPrefix(standardizedParentPath) && standardizedSelfPath != standardizedParentPath
+        return standardizedSelfPath.hasPrefix(standardizedParentPath) && (standardizedSelfPath != standardizedParentPath)
     }
 }

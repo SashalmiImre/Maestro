@@ -19,7 +19,7 @@ struct PageView: View {
                     .background(Color.white)
                     .overlay(manager.isEditMode ? Color.blue.opacity(0.3) : Color.clear)
             } else {
-                EmptyNumberedPageView(page: page, manager: manager)
+                EmptyNumberedPageView(page: page)
             }
         }
     }
@@ -27,7 +27,7 @@ struct PageView: View {
 
 struct EmptyNumberedPageView: View {
     let page: Page
-    @ObservedObject var manager: PublicationManager
+    @EnvironmentObject var manager: PublicationManager
     
     @State private var size: CGSize = .zero
     
@@ -35,7 +35,7 @@ struct EmptyNumberedPageView: View {
         Rectangle()
             .fill(Color.gray.opacity(0.1))
             .frame(
-                width: size.width * manager.zoomLevel,
+                width:  size.width  * manager.zoomLevel,
                 height: size.height * manager.zoomLevel
             )
             .overlay(
@@ -43,10 +43,13 @@ struct EmptyNumberedPageView: View {
                     .font(.system(size: 240 * manager.zoomLevel))
                     .foregroundColor(.gray.opacity(0.10))
             )
+            .onAppear {
+                size = manager.selectedLayout!.maxPageSizes[.trimBox]!.size
+            }
             .task {
                 if let layout = manager.selectedLayout {
-                    let rect = await layout.maxPageSize(for: .trimBox)
-                    size = rect.size
+                    let rect = layout.maxPageSizes[.trimBox]
+                    size = rect!.size
                 }
             }
     }

@@ -8,32 +8,23 @@
 import Foundation
 import PDFKit
 
-actor PagePair: Hashable {
-    let leftPage: Page
-    let rightPage: Page
+actor PagePair {
+    unowned let leftArticle:  Article?
+    unowned let rightArticle: Article?
+    
+    nonisolated var leftPage:  Page { leftArticle?[coverage.lowerBound]  ?? Page(pageNumber: coverage.lowerBound) }
+    nonisolated var rightPage: Page { rightArticle?[coverage.upperBound] ?? Page(pageNumber: coverage.upperBound) }
 
-    nonisolated var coverage: ClosedRange<Int> {
-        return leftPage.pageNumber...rightPage.pageNumber
-    }
+    let coverage: ClosedRange<Int>
 
-    init(leftPage: Page, rightPage: Page) {
-        self.leftPage  = leftPage
-        self.rightPage = rightPage
+    init(coverage: ClosedRange<Int>, leftArticle: Article?, rightArticle: Article?) {
+        self.coverage     = coverage
+        self.leftArticle  = leftArticle
+        self.rightArticle = rightArticle
     }
     
-    
-    // MARK: - Equatable Implementation
-
-    static func == (lhs: PagePair, rhs: PagePair) -> Bool {
-        return lhs.leftPage == rhs.leftPage
-        && lhs.rightPage == rhs.rightPage
-    }
-   
-    
-    // MARK: - Hashable Implementation
-    
-    nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(leftPage)
-        hasher.combine(rightPage)
+    subscript(pageNumber: Int) -> Page? {
+        guard coverage.contains(pageNumber) else { return nil }
+        return pageNumber == coverage.lowerBound ? leftPage : rightPage
     }
 }

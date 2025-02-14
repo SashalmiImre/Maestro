@@ -8,46 +8,85 @@ struct LayoutView: View {
     
     let layout: Layout
     
-    @State private var eventMonitor: Any?
     @State private var pagePairs: [PagePair] = []
     @State private var maxPageSize: CGSize = .zero
     
     // MARK: - Layout Properties
+    
+    private func getLocalizedDateString(localeIdentifier: String = "hu_HU") -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: localeIdentifier)
+        formatter.dateStyle = .long
+        formatter.timeStyle = .medium
+        return formatter.string(from: Date())
+    }
     
     private var spacing: CGFloat {
         80 * manager.zoomLevel
     }
     
     var body: some View {
-        pagesGrid
-            .animation(.easeInOut(duration: 0.3), value: manager.layoutColumns)
-            .onTapGesture {
+        VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 20 * manager.zoomLevel) {
+                HStack(alignment: .firstTextBaseline, spacing: 40 * manager.zoomLevel) {
+                    Text(manager.publication?.name ?? "Név nélkül")
+                        .font(.system(size: 240 * manager.zoomLevel))
+                        .fontWeight(.bold)
+                    
+                    Divider()
+                        .frame(minWidth: 40 * manager.zoomLevel)
+                    
+                    let layoutVersionCharacter = Character(UnicodeScalar(manager.selectedLayoutIndex + 65)!)
+                    Text("\(layoutVersionCharacter) - elrendezés")
+                        .font(.system(size: 160 * manager.zoomLevel))
+                }
+                
+                Divider()
+                    .padding(.top, 40 * manager.zoomLevel)
+                
+                Text("Készítette: \(NSFullUserName())")
+                    .font(.system(size: 60 * manager.zoomLevel))
+                
+                Text("Dátum: \(getLocalizedDateString())")
+                    .font(.system(size: 60 * manager.zoomLevel))
+                
+                Divider()
+            }
+            .padding(spacing)
+            
+            pagesGrid
+        }
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        context.scrollViewContentSize = geometry.size
+                    }
+                    .onChange(of: geometry.size) { _, newSize in
+                        context.scrollViewContentSize = newSize
+                        print("LayoutView size: \(newSize)")
+                    }
+            }
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.3), value: manager.layoutColumns)
+        .onTapGesture {
+            // clearSelection()
+        }
+        .onChange(of: manager.isEditMode) { _, newValue in
+            if !newValue {
                 // clearSelection()
             }
-            .onChange(of: manager.isEditMode) { _, newValue in
-                if !newValue {
-                    // clearSelection()
-                }
+        }
+        .onChange(of: manager.isExporting) { _, newValue in
+            if layout == manager.selectedLayout && newValue == true {
+                saveToPDF()
             }
-            .onChange(of: manager.isExporting) { _, newValue in
-                if layout == manager.selectedLayout && newValue == true {
-                    saveToPDF()
-                }
-            }
-            .onAppear {
-                eventMonitor = keyDownHandler()
-                loadPagePairs()
-                loadMaxPageSize()
-            }
-            .onDisappear {
-                if let monitor = eventMonitor {
-                    NSEvent.removeMonitor(monitor)
-                    eventMonitor = nil
-                    print("Event monitor removed.")
-                } else {
-                    print("No event monitor to remove.")
-                }
-            }
+        }
+        .task {
+            loadPagePairs()
+            loadMaxPageSize()
+        }
     }
     
     private var pagesGrid: some View {
@@ -62,7 +101,7 @@ struct LayoutView: View {
                         if index < pagePairsCount {
                             let pagePair = pagePairs[index]
                             PagePairView(pagePair: pagePair)
-                                .id(pagePair.coverage.lowerBound)
+                                .id("PagePair\(pagePair.coverage.lowerBound)")
                                 .environmentObject(manager)
                         } else {
                             Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
@@ -73,30 +112,7 @@ struct LayoutView: View {
         }
         .padding(spacing)
         .background(Color.clear)
-    }
-    
-    private func keyDownHandler() -> Any? {
-        return NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            if event.modifierFlags.contains(.command) {
-                switch event.charactersIgnoringModifiers {
-                case "0":
-                    Task {
-                        await zoomToFitCurrentPage()
-                    }
-                case "1":
-                    Task {
-                        await zoomToFitLayoutWidth()
-                    }
-                case "3":
-                    Task {
-                        await zoomToFitCurrentPagePair()
-                    }
-                default:
-                    break
-                }
-            }
-            return event
-        }
+        .fixedSize(horizontal: true, vertical: true)
     }
     
     private func loadPagePairs() {
@@ -107,67 +123,21 @@ struct LayoutView: View {
     
     private func loadMaxPageSize() {
         Task {
-            if let rect = await manager.layouts.first?.maxPageSize(for: .trimBox) {
+            if let rect = manager.layouts.first?.maxPageSizes[.trimBox] {
                 self.maxPageSize = rect.size
-            }
-        }
-    }
-    
-    private func zoomToFitCurrentPage() async {
-        let availableSize = context.scrollViewAvaiableSize
-        let availableWidth = availableSize.width - spacing * 2
-        let availableHeight = availableSize.height - spacing * 2
-        let zoomX = availableWidth / (maxPageSize.width * 2)
-        let zoomY = availableHeight / maxPageSize.height
-        await MainActor.run {
-            withAnimation {
-                manager.zoomLevel = max(0.1, min(zoomX, zoomY))
-            }
-        }
-    }
-    
-    private func zoomToFitLayoutWidth() async {
-        let totalWidth = (maxPageSize.width * 2.0 * CGFloat(manager.layoutColumns)) + (spacing * CGFloat(manager.layoutColumns - 1))
-        let availableSize = context.scrollViewAvaiableSize
-        let availableWidth = availableSize.width - spacing * 2
-        await MainActor.run {
-            withAnimation {
-                manager.zoomLevel = max(0.1, availableWidth / totalWidth)
-            }
-        }
-    }
-    
-    private func zoomToFitCurrentPagePair() async {
-        if let pagePair = pagePairs.first(where: { $0.coverage.contains(manager.currentPageNumber) }) {
-            let pairWidth = maxPageSize.width * 2
-            let availableSize = context.scrollViewAvaiableSize
-            let availableWidth = availableSize.width - spacing * 2
-            let availableHeight = availableSize.height - spacing * 2
-            let zoomX = availableWidth / pairWidth
-            let zoomY = availableHeight / maxPageSize.height
-            await MainActor.run {
-                withAnimation {
-                    manager.zoomLevel = max(0.1, min(zoomX, zoomY))
-                }
             }
         }
     }
     
     private func saveToPDF() {
         Task {
-            let pairCount = pagePairs.count
-            let rowCount = Int(ceil(Double(pairCount) / Double(manager.layoutColumns))) + 1
-            let columnCount = min(pairCount, manager.layoutColumns)
+            let mediaBox    = CGRect(origin: .zero, size: context.scrollViewContentSize)
+            let renderer    = ImageRenderer(content: self
+                .environmentObject(manager)
+                .environmentObject(context))
+            renderer.proposedSize = ProposedViewSize(width: mediaBox.width, height: mediaBox.height)
             
-            let totalWidth = (maxPageSize.width * 2 * CGFloat(columnCount) * manager.zoomLevel) + (spacing * CGFloat(columnCount - 1)) + (spacing * 2)
-            let totalHeight = (maxPageSize.height * CGFloat(rowCount) * manager.zoomLevel) + (spacing * CGFloat(rowCount - 1)) + (spacing * 2)
-            
-            let mediaBox = CGRect(x: 0, y: 0, width: totalWidth, height: totalHeight)
-            
-            let renderer = ImageRenderer(content: self.environmentObject(manager))
-            renderer.proposedSize = ProposedViewSize(width: totalWidth, height: totalHeight)
-            
-            renderer.scale = 1.0
+            renderer.scale    = 1.0
             renderer.isOpaque = false
             
             let savePanel = NSSavePanel()

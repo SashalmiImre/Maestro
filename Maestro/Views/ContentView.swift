@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var manager: PublicationManager = .init()
-    @State       private var error: Error?
-    @State       private var temporaryPageNumber: Int = 1
+    @StateObject internal var manager: PublicationManager = .init()
+    @State       private  var error: Error?
+    @State       private  var temporaryPageNumber: Int = 1
     
     // Add formatter for columns
     private let columnsFormatter: NumberFormatter = {
@@ -21,7 +21,6 @@ struct ContentView: View {
         return formatter
     }()
     
-    // Add page number formatter
     private var pageFormatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.minimum = 1
@@ -29,20 +28,14 @@ struct ContentView: View {
         formatter.allowsFloats = false
         return formatter
     }
-    
-    init() {
-        _temporaryPageNumber = State(initialValue: 1)
-    }
-    
+
     var body: some View {
         Group {
             if manager.publication == nil {
-                // Ha nincs publikáció, várjuk a drag & drop-ot
                 DropView(error: $error)
-                
             } else {
-                // Ha van érvényes publikáció, megjelenítjük a layoutokat
                 LayoutsView()
+                    .task { await manager.refresh() }
                     .toolbar {
                         // Bal oldali elemek
                         ToolbarItemGroup(placement: .principal) {
@@ -98,6 +91,7 @@ struct ContentView: View {
             }
         }
         .environmentObject(manager)
+        .focusedSceneObject(manager)
         .frame(minWidth: 800, minHeight: 600)
     }
     
@@ -140,7 +134,6 @@ struct ContentView: View {
         }
     }
     
-    // Updated page navigation controls
     private var pageNavigationControls: some View {
         HStack {
             Button(action: {
