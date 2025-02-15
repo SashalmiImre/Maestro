@@ -1,0 +1,60 @@
+{
+  "version" : 1,
+  "author" : "AssetCreator",
+  "images" : [
+    {
+      "size" : "16x16",
+      "idiom" : "mac",
+      "scale" : "1x",
+      "filename" : "mac-16.png"
+    },
+    {
+      "idiom" : "mac",
+      "filename" : "mac-16@2x.png",
+      "size" : "16x16",
+      "scale" : "2x"
+    },
+    {
+      "scale" : "1x",
+      "size" : "32x32",
+      "idiom" : "mac",
+      "filename" : "mac-32.png"
+    },
+    {
+      "idiom" : "mac",
+      "scale" : "1x",
+      "size" : "128x128",
+      "filename" : "mac-128.png"
+    },
+    {
+      "size" : "128x128",
+      "scale" : "2x",
+      "idiom" : "mac",
+      "filename" : "mac-128@2x.png"
+    },
+    {
+      "scale" : "1x",
+      "filename" : "mac-256.png",
+      "size" : "256x256",
+      "idiom" : "mac"
+    },
+    {
+      "scale" : "2x",
+      "filename" : "mac-256@2x.png",
+      "idiom" : "mac",
+      "size" : "256x256"
+    },
+    {
+      "scale" : "1x",
+      "idiom" : "mac",
+      "size" : "512x512",
+      "filename" : "mac-512.png"
+    },
+    {
+      "filename" : "mac-512@2x.png",
+      "size" : "512x512",
+      "idiom" : "mac",
+      "scale" : "2x"
+    }
+  ]
+}
