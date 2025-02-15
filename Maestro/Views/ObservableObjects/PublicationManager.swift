@@ -23,6 +23,8 @@ class PublicationManager: ObservableObject {
     @Published              var layoutColumns: Int = 5
     @Published              var currentPageNumber: Int = 1
     
+                private     var pageImageCache: NSCache<NSString,  NSImage> = .init()
+    
     var selectedLayout: Layout? {
         Array(layouts)[safe: selectedLayoutIndex]
     }
@@ -32,6 +34,7 @@ class PublicationManager: ObservableObject {
 
     private func reset() {
         layouts.removeAll()
+        pageImageCache.removeAllObjects()
         selectedLayoutIndex = 0
         maxPageNumber = 8
     }

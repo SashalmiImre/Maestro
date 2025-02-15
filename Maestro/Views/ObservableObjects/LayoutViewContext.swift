@@ -12,7 +12,8 @@ class LayoutViewContext: ObservableObject, FocusedValueKey {
     typealias Value = LayoutViewContext
     
     @Published var scrollViewAvaiableSize: CGSize = .zero
-    @Published var scrollViewContentSize: CGSize = .zero
+    @Published var scrollViewContentSize: CGSize  = .zero
+    @Published var scrollViewPosition: CGRect     = .zero
  
     var scrollViewProxy: ScrollViewProxy?
 }
